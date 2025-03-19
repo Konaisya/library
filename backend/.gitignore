@@ -1,0 +1,6 @@
+/.env
+/create_database.py
+*/__pycache__/
+venv/
+/__pycache__
+secret_key.py
