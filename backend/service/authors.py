@@ -5,10 +5,8 @@ from schemas.books import *
 from utils.enums import Status
 
 class AuthorService:
-    def __init__(self, author_repository: AuthorRepository,
-                 author_assoc_repository: AuthorRepository):
-        self.author_repository = author_repository
-        self.author_assoc_repository = author_assoc_repository
+    def __init__(self, author_repository: AuthorRepository):
+            self.author_repository = author_repository
 
     def get_all_authors_filter_by(self, **filter):
         return self.author_repository.get_all_filter_by(**filter)
