@@ -1,19 +1,18 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { books } from "../books";
-
-type BookDetailPageProps = {
-    id: number;
-    name: string;
-    description: string;
-    image: string;
-    publishers: string;
-    author: string;
-    year: number;
-    ISBN: string;
-};
+import Image from "next/image";
+// type BookDetailPageProps = {
+//     id: number;
+//     name: string;
+//     description: string;
+//     image: string;
+//     publishers: string;
+//     author: string;
+//     year: number;
+//     ISBN: string;
+// };
 
 export default function BookDetailPage() {
   const pathname = usePathname();
@@ -32,7 +31,13 @@ export default function BookDetailPage() {
         whileInView={{ opacity: 1, y: 0 }}
         initial={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.8 }}>
-            <img src={book.image} alt={book.name} className="w-full h-96 object-cover rounded-md mb-4" />
+            <Image 
+              src={book.image} 
+              alt={book.name} 
+              width={384} 
+              height={384} 
+              className="w-full h-96 object-cover rounded-md mb-4" 
+            />
             <h1 className="text-3xl font-bold text-gray-800">{book.name}</h1>
             <p className="text-gray-600 mt-2">{book.description}</p>
             <p className="text-gray-700 mt-4"><strong>Автор:</strong> {book.author}</p>

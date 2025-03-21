@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { LazyMotion, domAnimation, motion } from "framer-motion";
 import Link from "next/link";
 import { books } from "./books";
+import Image from 'next/image';
 
 interface Book {
   id: number;
@@ -49,7 +50,7 @@ export default function BooksPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [authorFilter, setAuthorFilter] = useState('');
     const [yearFilter, setYearFilter] = useState('');
-    const [isSearchVisible, setIsSearchVisible] = useState(false); // Состояние для видимости поиска
+    const [isSearchVisible, setIsSearchVisible] = useState(false);
     const groupedBooks = groupBooksByNameAndPublisher(books);
     const uniqueAuthors = getUniqueAuthors(books);
     const filteredBooks = groupedBooks.filter(book => {
@@ -82,10 +83,13 @@ export default function BooksPage() {
                 whileHover={{ transition: { duration: 0.3 }, scale: 1.05, boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)" }}
                 whileTap={{ scale: 0.95 }}
               >
-                <img
+                <Image
                   src={book.image}
                   alt={book.name}
-                  className="w-40 h-40 object-cover rounded-md mb-4 mx-auto"
+                  width={400} 
+                  height={400} 
+                  objectFit='cover'
+                  className="object-cover rounded-md mb-4 mx-auto"
                 />
                 <h2 className="text-xl font-semibold text-gray-800 text-center">{book.name}</h2>
                 <p className="text-gray-600 text-center">{book.author}</p>
