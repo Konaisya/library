@@ -34,20 +34,12 @@ def get_user_service(user_repository: UserRepository = Depends(get_user_reposito
                        school_class_repository=school_class_repository)
 
 
-# Author
-def get_author_repository(db: Session = Depends(get_session)):
-    return AuthorRepository(model=Author, session=db)
+# Associations
+def get_book_genre_assoc_repository(db: Session = Depends(get_session)):
+    return BookRepository(model=GenreBook, session=db)
 
-def get_author_service(author_repository: AuthorRepository = Depends(get_author_repository)):
-    return AuthorService(author_repository=author_repository)
-
-
-# Publisher
-def get_publisher_repository(db: Session = Depends(get_session)):
-    return PublisherRepository(model=Publisher, session=db)
-
-def get_publisher_service(publisher_repository: PublisherRepository = Depends(get_publisher_repository)):
-    return PublisherService(publisher_repository = publisher_repository)
+def get_author_assoc_repository(db: Session = Depends(get_session)):
+    return BookRepository(model=AuthorBook, session=db)
 
 
 # Book
@@ -60,12 +52,6 @@ def get_book_item_repository(db: Session = Depends(get_session)):
 def get_book_genre_repository(db: Session = Depends(get_session)):
     return BookRepository(model=Genre, session=db)
 
-def get_book_genre_assoc_repository(db: Session = Depends(get_session)):
-    return BookRepository(model=GenreBook, session=db)
-
-def get_author_assoc_repository(db: Session = Depends(get_session)):
-    return AuthorRepository(model=AuthorBook, session=db)
-
 def get_book_service(book_repository: BookRepository = Depends(get_book_repository),
                      book_item_repository: BookRepository = Depends(get_book_item_repository),
                      book_genre_repository: BookRepository = Depends(get_book_genre_repository),
@@ -76,3 +62,21 @@ def get_book_service(book_repository: BookRepository = Depends(get_book_reposito
                        book_genre_repository=book_genre_repository,
                        book_genre_assoc_repository=book_genre_assoc_repository,
                        book_author_assoc_repository=book_author_assoc_repository)
+
+
+# Author
+def get_author_repository(db: Session = Depends(get_session)):
+    return AuthorRepository(model=Author, session=db)
+
+def get_author_service(author_repository: AuthorRepository = Depends(get_author_repository),
+                       book_author_assoc_repository: BookRepository = Depends(get_author_assoc_repository)):
+    return AuthorService(author_repository=author_repository,
+                         book_author_assoc_repository=book_author_assoc_repository)
+
+
+# Publisher
+def get_publisher_repository(db: Session = Depends(get_session)):
+    return PublisherRepository(model=Publisher, session=db)
+
+def get_publisher_service(publisher_repository: PublisherRepository = Depends(get_publisher_repository)):
+    return PublisherService(publisher_repository = publisher_repository)
