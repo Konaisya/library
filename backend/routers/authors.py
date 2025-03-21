@@ -14,9 +14,10 @@ async def get_all_authors(name: str | None = Query(None),
                           birth_date: date | None = Query(None),
                           death_date: date | None = Query(None),
                           bio: str | None = Query(None),
+                          id_book: int | None = Query(None),
                           author_service: AuthorService = Depends(get_author_service)):
-    filter = {k: v for k, v in locals().items() if v is not None and k != "author_service"}
-    authors = author_service.get_all_authors_filter_by(**filter)
+    filter = {k: v for k, v in locals().items() if v is not None and k != "author_service" and k != "id_book"}
+    authors = author_service.get_all_authors_filter_by(id_book=id_book, **filter)
     response = [Author(**author.__dict__) for author in authors]
     return response
 
