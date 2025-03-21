@@ -11,7 +11,7 @@ async def get_me(user_service: UserService = Depends(get_user_service),
     user_info = user_service.get_user_filter_by(id=user.id)
     if not user_info:
         raise HTTPException(status_code=404, detail={'status': AuthStatus.USER_NOT_FOUND.value})
-    return UserResponse(id=user_info.id, name=user_info.name, org_name=user_info.org_name, email=user_info.email) 
+    return UserResponse(**user_info.__dict__) 
 
 @router.put('/')
 async def update_user(data: UserUpdate, 

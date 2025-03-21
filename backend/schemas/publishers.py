@@ -9,10 +9,6 @@ class Publisher(BaseModel):
     description: str
     foundation_year: int
 
-    def __init__(self, **data):
-        super().__init__(**data)
-        self.image = f"backend/images/{self.image}"
-
 class CreatePublisher(BaseModel):
     name: str
     description: str

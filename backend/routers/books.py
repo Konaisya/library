@@ -46,10 +46,31 @@ async def get_all_books_filter_by(name: str | None = Query(None),
     return response
 
 @router.get('/{id}', status_code=200)
-async def get_book(id: int, book_service: BookService = Depends(get_book_service)):
+async def get_book(id: int, book_service: BookService = Depends(get_book_service),
+                   publisher_service: PublisherService = Depends(get_publisher_service),
+                   author_service: AuthorService = Depends(get_author_service)):
     book = book_service.get_one_book_filter_by(id=id)
     if not book:
         raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
-    return {'status': Status.SUCCESS.value, 'new_book': Book(**book.__dict__)}
+    publisher = publisher_service.get_one_publisher_filter_by(id=book.id_publisher)
+
+    authors = author_service.get_all_authors_filter_by(id_book=book.id)
+    authors_list = [Author(**author.__dict__) for author in authors]
+
+    genres = book_service.get_all_genres_filter_by(id_book=book.id)
+    genres_list = [Genre(**genre.__dict__) for genre in genres]
+
+    book_items = book_service.get_all_book_items_filter_by(id_book=book.id)
+    quantity = sum(1 for item in book_items if item.is_available)
+
+    book_data = book.__dict__
+    book_data.update({
+        'authors': authors_list,
+        'publisher': publisher.__dict__,
+        'genres': genres_list,
+        'quantity': quantity,
+    })
+    book = Book(**book_data)
+    return {'status': Status.SUCCESS.value, 'book': book}
 
 

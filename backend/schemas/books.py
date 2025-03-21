@@ -61,10 +61,6 @@ class Book(BaseModel):
     ISBN: str
     quantity: int
 
-    def __init__(self, **data):
-        super().__init__(**data)
-        self.image = f"backend/images/{self.image}"
-
 
 class CreateBookItem(BaseModel):
     id_book: int
