@@ -26,5 +26,4 @@ async def get_author_by_id(author_id: int, author_service: AuthorService = Depen
     author = author_service.get_one_author_filter_by(id=author_id)
     if author is None:
         raise HTTPException(status_code=404, detail="Author not found")
-    author.image = f"images/{author.image}"
     return Author(**author.__dict__)
