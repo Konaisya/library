@@ -27,7 +27,7 @@ export const books = [
       publishers: "Азбука",
       author: "Лев Толстой",
       year: 1869,
-      ISBN: "978-5-389-07455-7",
+      ISBN: "978-5-389-07455-7"
     },
     {
       id: 4,

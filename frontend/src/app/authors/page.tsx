@@ -4,6 +4,8 @@ import Link from "next/link";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { BASE_URL, API_URL } from "@/links/APIURL";
+
 
 type Author = {
   id: number;
@@ -13,14 +15,13 @@ type Author = {
 
 export default function AuthorsPage() {
   const [authors, setAuthors] = useState<Author[]>([]);
-
   useEffect(() => {
-    axios.get<Author[]>("http://127.0.0.1:8000/api/authors/")
+    axios.get<Author[]>(`${API_URL}authors/`)
       .then(response => setAuthors(response.data))
       .catch(error => console.error("Ошибка загрузки авторов:", error));
   }, []);
-
-
+  
+  
   return (
     <motion.div 
       className="container mx-auto p-6"
@@ -56,12 +57,12 @@ export default function AuthorsPage() {
             className="bg-white shadow-lg rounded-lg p-4 text-center"
           >
              <Link href={`/authors/${author.id}`}>
-              <Image 
-                src={author.image ? `/images/${author.image}` : "/images/placeholder.png"} 
+             <Image 
+                src={`${BASE_URL}${author.image}` || "/placeholder.png"} 
                 alt={author.name} 
                 width={150} 
                 height={150} 
-                // unoptimized={true}
+                unoptimized={true}
                 className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
               />
               <h2 className="text-xl font-semibold text-gray-800">{author.name}</h2>
