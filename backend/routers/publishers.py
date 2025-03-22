@@ -22,6 +22,7 @@ async def get_publisher(id: int, publisher_service: PublisherService = Depends(g
     publisher = publisher_service.get_one_publisher_filter_by(id=id)
     if not publisher:
         raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
+    publisher.image = f"images/{publisher.image}"
     return {'status': Status.SUCCESS.value, 'new_publisher':Publisher(**publisher.__dict__)}
 
 @router.post('/', status_code=201)
