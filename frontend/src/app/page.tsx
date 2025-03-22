@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -27,9 +28,11 @@ export default function Home() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.6 }}
       >
-        <Button className="px-6 py-3 text-lg bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition">
-          Исследовать коллекцию книг
-        </Button>
+        <Link href="/books">
+          <Button className="px-6 py-3 text-lg bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition">
+            Исследовать коллекцию книг
+          </Button>
+        </Link>
       </motion.div>
     </div>
   );
