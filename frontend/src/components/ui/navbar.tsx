@@ -20,7 +20,7 @@ export const Navbar = () => {
   }, [pathname]);
 
   return (
-    <nav className={`fixed w-full ${bgColor} shadow-md p-4 flex justify-between items-center top-0 left-0 z-50 transition-colors duration-500`}>
+    <nav className={`fixed w-full ${bgColor} shadow-md p-4 flex justify-between items-center top-0 left-0 z-1001 transition-colors duration-500`}>
       <Link href="/" className="hover:text-blue-600 transition">
         <motion.div 
           className="text-2xl font-bold"
@@ -40,6 +40,7 @@ export const Navbar = () => {
         <Link href="/" className="hover:text-blue-600 transition">Главная</Link>
         <Link href="/books" className="hover:text-blue-600 transition">Книги</Link>
         <Link href="/authors" className="hover:text-blue-600 transition">Авторы</Link>
+        <Link href="/publishers" className="hover:text-blue-600 transition">Издатели</Link>
         <Link href="/auth/signIn" className="border px-4 py-2 rounded-lg transition hover:bg-blue-600 hover:text-white">
           Авторизация
         </Link>
@@ -50,6 +51,7 @@ export const Navbar = () => {
           <Link href="/" className="hover:text-blue-600 transition" onClick={() => setIsOpen(false)}>Главная</Link>
           <Link href="/books" className="hover:text-blue-600 transition" onClick={() => setIsOpen(false)}>Книги</Link>
           <Link href="/authors" className="hover:text-blue-600 transition" onClick={() => setIsOpen(false)}>Авторы</Link>
+          <Link href="/publishers" className="hover:text-blue-600 transition" onClick={() => setIsOpen(false)}>Издатели</Link>  
           <Link href="/auth/signIn" className="border px-4 py-2 rounded-lg transition hover:bg-blue-600 hover:text-white" onClick={() => setIsOpen(false)}>
             Авторизация
           </Link>

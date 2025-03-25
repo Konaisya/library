@@ -1,0 +1,80 @@
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background-color: #4c51bf; /* Цвет navbar */
+    color: white;
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+    transition: all 0.3s ease;
+    width: 64px; /* Начальная суженная ширина */
+    border-radius: 0 20px 20px 0;
+    overflow: hidden; /* Чтобы контент не выходил за пределы */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; 
+  }
+  
+  .navbarExpanded {
+    width: 240px; /* Раскрытая ширина */
+  }
+  
+  .navbarCollapsed {
+    width: 64px; /* Сжата ширина */
+  }
+  
+  .menuItem {
+    padding: 1rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; /* Центрирование по вертикали */
+  }
+  
+  .menuItem:hover {
+    background-color: #2b6cb0; /* Цвет фона при наведении */
+  }
+  
+  .menuItem:active {
+    transform: scale(0.95); /* Сжатие при клике */
+  }
+  
+  .menuText {
+    display: inline-block;
+    margin-top: 10px; /* Отступ сверху для центрирования */
+    transition: all 0.3s ease;
+  }
+  
+  .iconWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  @media (min-width: 768px) {
+    .navbar {
+      width: 64px; /* Начальная суженная ширина */
+    }
+  
+    .navbarExpanded {
+      width: 240px; /* Раскрытая ширина */
+    }
+  
+    .iconWrapper {
+      justify-content: center;
+    }
+  
+    .menuText {
+      display: inline-block;
+      margin-top: 10px;
+    }
+  }

@@ -97,5 +97,5 @@ class User(BaseModel):
 class UserResponse(BaseModel):
     id: int
     name: str
-    school_class: Optional[SchoolClass] 
     email: str
+    school_class: Optional[str] = None 
