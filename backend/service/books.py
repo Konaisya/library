@@ -8,12 +8,10 @@ from sqlalchemy.orm import joinedload
 
 class BookService:
     def __init__(self, book_repository: BookRepository,
-                 book_item_repository: BookRepository,
                  book_genre_repository: BookRepository,
                  book_genre_assoc_repository: BookRepository,
                  book_author_assoc_repository: BookRepository):
         self.book_repository = book_repository
-        self.book_item_repository = book_item_repository
         self.book_genre_repository = book_genre_repository
         self.book_genre_assoc_repository = book_genre_assoc_repository
         self.book_author_assoc_repository = book_author_assoc_repository
@@ -65,16 +63,8 @@ class BookService:
         return self.book_repository.delete(id)
     
 
-    # BookItem
-    def get_all_book_items_filter_by(self, **filter):
-        return self.book_item_repository.get_all_filter_by(**filter)
-    
-    def get_one_book_item_filter_by(self, **filter):
-        return self.book_item_repository.get_one_filter_by(**filter)
-    
-
     # Genre
-    def get_all_genres_filter_by(self, id_book: int, **filter):
+    def get_all_genres_filter_by(self, id_book: int = None, **filter):
         query = self.book_genre_repository.session.query(Genre)
         if id_book:
             query = query.join(GenreBook).filter(GenreBook.id_book == id_book)

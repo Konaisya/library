@@ -41,7 +41,6 @@ async def update_publisher(id: int, upd_data: UpdatePublisher,
     upd_publisher = publisher_service.update_publisher(id, upd_data)
     return {'status': Status.SUCCESS.value, 'update_publisher': upd_publisher}
 
-
 @router.patch('/{id}/image', status_code=200)
 async def update_publisher_image(id: int, image: UploadFile = File(...),
                                  publisher_service: PublisherService = Depends(get_publisher_service)):
