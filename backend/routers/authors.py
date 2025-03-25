@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, File, UploadFile
 from dependencies import get_publisher_service, PublisherService
 from schemas.publishers import *
 from utils.enums import Status
 from datetime import date
 from dependencies import get_author_service, AuthorService
 from schemas.authors import *
+from utils.image import save_image
 
 router = APIRouter()
 
@@ -15,7 +16,6 @@ async def create_author(author_data: CreateAuthor,
     if new_author == Status.FAILED.value:
         raise HTTPException(status_code=400, detail={'staus': Status.FAILED.value})
     return {'status': Status.SUCCESS.value, 'author': new_author}
-    
 
 @router.get('/', status_code=200)
 async def get_all_authors(name: str | None = Query(None),
@@ -54,3 +54,13 @@ async def delete_author(id: int, author_service: AuthorService = Depends(get_aut
         raise HTTPException(status_code=404, detail="Author not found")
     author_delete = author_service.delete_author(id)
     return {'status': Status.SUCCESS.value}
+
+@router.patch('/{id}/image', status_code=200)
+async def update_author_image(id: int, image: UploadFile = File(...),
+                             author_service: AuthorService = Depends(get_author_service)):
+    author = author_service.get_one_author_filter_by(id=id)
+    if not author:
+        raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
+    upd_author = author_service.update_author(id, UpdateAuthor(image=image.filename))
+    image_name = save_image(image)
+    return {'status': Status.SUCCESS.value, 'update_image': image_name}
