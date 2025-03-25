@@ -7,19 +7,19 @@ class Author(BaseModel):
     name: str
     image: str
     birth_date: date
-    death_date: Optional[date]
+    death_date: Optional[date] = None
     bio: str
 
 class CreateAuthor(BaseModel):
     name: str
     birth_date: date
-    death_date: Optional[date]
+    death_date: Optional[date] = None
     bio: str
 
 class UpdateAuthor(BaseModel):
-    name: Optional[str]
-    image: Optional[str]
-    birth_date: Optional[date]
-    death_date: Optional[date]
-    bio: Optional[str]
+    name: Optional[str] = None
+    image: Optional[str] = None
+    birth_date: Optional[date] = None
+    death_date: Optional[date] = None
+    bio: Optional[str] = None
 

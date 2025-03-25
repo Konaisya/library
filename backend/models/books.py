@@ -11,22 +11,13 @@ class Book(Base):
     image: Mapped[str] = mapped_column(String(255), default='placeholder.png')
     id_publisher: Mapped[int] = mapped_column(ForeignKey('publishers.id'))
     year: Mapped[int] = mapped_column(Integer)
-    ISBN: Mapped[str] = mapped_column(String(255)) 
+    ISBN: Mapped[str] = mapped_column(String(255))
+    count: Mapped[int] = mapped_column(Integer)
 
     genre_book: Mapped["GenreBook"] = relationship("GenreBook", back_populates="book")
     author_book: Mapped["AuthorBook"] = relationship("AuthorBook", back_populates="book")
     publisher: Mapped["Publisher"] = relationship("Publisher", back_populates="book")
-    book_item: Mapped["BookItem"] = relationship("BookItem", back_populates="book")
-    
-class BookItem(Base):
-    __tablename__ = 'book_items'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    id_book: Mapped[int] = mapped_column(ForeignKey('books.id'))
-    is_available: Mapped[bool] = mapped_column(BOOLEAN, default=True)
-
-    book: Mapped["Book"] = relationship("Book", back_populates="book_item")
-    order: Mapped["Order"] = relationship("Order", back_populates="book_item")
+    order: Mapped["Order"] = relationship("Order", back_populates="book")
 
 
 class GenreBook(Base):

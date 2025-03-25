@@ -1,6 +1,7 @@
 from utils.abstract_repository import IREpository
 from models.books import *
 from models.authors import AuthorBook, Author
+from schemas.authors import *
 from dependencies import AuthorRepository, BookRepository
 from utils.enums import Status
 
@@ -21,3 +22,19 @@ class AuthorService:
     
     def get_one_author_filter_by(self, **filter):
         return self.author_repository.get_one_filter_by(**filter)
+    
+    def create_author(self, create_data: CreateAuthor):
+        author_data = self.author_repository.add(create_data.model_dump())
+        if not author_data:
+            return Status.FAILED.value
+        return author_data
+    
+    def update_author(self, id: int, data: UpdateAuthor):
+        entity = data.model_dump()
+        entity['id'] = id
+        entity = {k: v for k, v in entity.items() if v is not None}
+        upd_author = self.author_repository.update(entity)
+        return upd_author\
+    
+    def delete_author(self, id: int):
+        return self.author_repository.delete(id)
