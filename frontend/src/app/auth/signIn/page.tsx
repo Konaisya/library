@@ -63,9 +63,6 @@ export default function SignIn() {
     }
   };
   
-  
-  
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600">
       <motion.div 

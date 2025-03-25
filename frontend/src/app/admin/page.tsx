@@ -54,7 +54,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-  
+
     if (!token) {
       console.error("Токен отсутствует, перенаправление на главную");
       router.push("/");
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
               {adminActions.map((action, index) => (
                 <motion.div
                   key={index}
-                  className="p-6 bg-indigo-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-indigo-600 transition-all flex items-center justify-center"
+                  className="p-6 bg-indigo-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-indigo-600 transition-bg flex items-center justify-center"
                   onClick={() => handleActionClick(action)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
               {actionTasks.map((task, index) => (
                 <motion.div
                   key={index}
-                  className="p-6 bg-green-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-600 transition-all flex items-center justify-center"
+                  className="p-6 bg-green-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-600 transition-bg flex items-center justify-center"
                   onClick={() => handleTaskClick(task.action, selectedAction.id)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
