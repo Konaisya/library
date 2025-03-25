@@ -37,8 +37,6 @@ class UpdateBook(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    ids_author: Optional[List[int]] = None
-    ids_genre: Optional[List[int]] = None
     id_publisher: Optional[int] = None
     year: Optional[int] = None
     ISBN: Optional[str] = None

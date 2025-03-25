@@ -45,7 +45,7 @@ class BookService:
                 'id_book': new_book.id,
                 'id_author': author_id
             }
-            self.book_author_assoc_repository(assoc_data)
+            self.book_author_assoc_repository.add(assoc_data)
 
         for genre_id in create_data.ids_genre:
             assoc_data = {
@@ -63,6 +63,8 @@ class BookService:
         return upd_book
     
     def delete_book(self, id: int):
+        self.book_author_assoc_repository.session.query(AuthorBook).filter_by(id_book=id).delete()
+        self.book_genre_assoc_repository.session.query(GenreBook).filter_by(id_book=id).delete()
         return self.book_repository.delete(id)
     
 
