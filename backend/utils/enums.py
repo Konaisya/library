@@ -27,6 +27,10 @@ class Roles(Enum):
     USER = 'USER'
 
 class OrderStatus(Enum):
-    NOT_RETURN = 'NOT RETURN'
-    RETURN = 'RETURN'
-    LOSE = 'LOSE'
+    PROCESSING = 'PROCESSING'
+    READY_FOR_PICKUP = 'READY_FOR_PICKUP'
+    CHECKED_OUT = 'CHECKED_OUT'
+    RETURNED = 'RETURNED'
+    CANCELLED = 'CANCELLED'
+    LOST = 'LOST'
+

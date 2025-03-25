@@ -8,19 +8,19 @@ from utils.image import save_image
 router = APIRouter()
 
 @router.get('/', status_code=200)
-async def get_all_books_filter_by(name: str | None = Query(None),
-                                  description: str | None = Query(None),
-                                  id_publisher: int | None = Query(None),
-                                  year: int | None = Query(None),
-                                  ISBN: str | None = Query(None),
-                                  id_genre: int | None = Query(None),
-                                  id_author: int | None = Query(None),
-                                  book_service: BookService = Depends(get_book_service),
-                                  publisher_service: PublisherService = Depends(get_publisher_service),
-                                  author_service: AuthorService = Depends(get_author_service)):
+async def get_all_books(name: str | None = Query(None),
+                        description: str | None = Query(None),
+                        id_publisher: int | None = Query(None),
+                        year: int | None = Query(None),
+                        ISBN: str | None = Query(None),
+                        id_genre: int | None = Query(None),
+                        id_author: int | None = Query(None),
+                        book_service: BookService = Depends(get_book_service),
+                        publisher_service: PublisherService = Depends(get_publisher_service),
+                        author_service: AuthorService = Depends(get_author_service)):
     filter = {k: v for k, v in locals().items() if v is not None 
-              and k != "book_service" and k != "publisher_service" and k != "author_service"
-              and k != "id_genre" and k != "id_author"}
+          and k not in {"book_service", "publisher_service", "author_service", "id_genre", "id_author"}}
+
     books = book_service.get_all_books_filter_by(id_author=id_author, id_genre=id_genre, **filter)
     response = []
     for book in books:
@@ -32,15 +32,11 @@ async def get_all_books_filter_by(name: str | None = Query(None),
         genres = book_service.get_all_genres_filter_by(id_book=book.id)
         genres_list = [Genre(**genre.__dict__) for genre in genres]
 
-        book_items = book_service.get_all_book_items_filter_by(id_book=book.id)
-        quantity = sum(1 for item in book_items if item.is_available)
-
         book_data = book.__dict__
         book_data.update({
             'authors': authors_list,
             'publisher': publisher.__dict__,
             'genres': genres_list,
-            'quantity': quantity,
         })
         response.append(Book(**book_data))
     return response
@@ -60,17 +56,13 @@ async def get_book(id: int, book_service: BookService = Depends(get_book_service
     genres = book_service.get_all_genres_filter_by(id_book=book.id)
     genres_list = [Genre(**genre.__dict__) for genre in genres]
 
-    book_items = book_service.get_all_book_items_filter_by(id_book=book.id)
-    quantity = sum(1 for item in book_items if item.is_available)
-
     book_data = book.__dict__
     book_data.update({
         'authors': authors_list,
         'publisher': publisher.__dict__,
         'genres': genres_list,
-        'quantity': quantity,
     })
     book = Book(**book_data)
-    return {'status': Status.SUCCESS.value, 'book': book}
+    return book
 
 

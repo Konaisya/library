@@ -2,18 +2,16 @@ from utils.abstract_repository import IREpository
 from models.books import *
 from models.authors import *
 from dependencies import BookRepository
-from schemas.books import CreateBook, UpdateBook
+from schemas.books import CreateBook, UpdateBook, CreateGenre, UpdateGenre
 from utils.enums import Status
 from sqlalchemy.orm import joinedload
 
 class BookService:
     def __init__(self, book_repository: BookRepository,
-                 book_item_repository: BookRepository,
                  book_genre_repository: BookRepository,
                  book_genre_assoc_repository: BookRepository,
                  book_author_assoc_repository: BookRepository):
         self.book_repository = book_repository
-        self.book_item_repository = book_item_repository
         self.book_genre_repository = book_genre_repository
         self.book_genre_assoc_repository = book_genre_assoc_repository
         self.book_author_assoc_repository = book_author_assoc_repository
@@ -65,16 +63,8 @@ class BookService:
         return self.book_repository.delete(id)
     
 
-    # BookItem
-    def get_all_book_items_filter_by(self, **filter):
-        return self.book_item_repository.get_all_filter_by(**filter)
-    
-    def get_one_book_item_filter_by(self, **filter):
-        return self.book_item_repository.get_one_filter_by(**filter)
-    
-
     # Genre
-    def get_all_genres_filter_by(self, id_book: int, **filter):
+    def get_all_genres_filter_by(self, id_book: int = None, **filter):
         query = self.book_genre_repository.session.query(Genre)
         if id_book:
             query = query.join(GenreBook).filter(GenreBook.id_book == id_book)
@@ -83,9 +73,22 @@ class BookService:
         genres = query.all()
         return genres
     
-    def get_one_genres_filter_by(self, **filter):
+    def get_one_genre_filter_by(self, **filter):
         return self.book_genre_repository.get_one_filter_by(**filter)
     
+    def create_genre(self, create_data: CreateGenre):
+        new_genre = self.book_genre_repository.add(create_data.model_dump())
+        if not new_genre:
+            return Status.FAILED.value
+        return new_genre
     
+    def update_genre(self, id: int, data: UpdateGenre):
+        entity = data.model_dump()
+        entity['id'] = id
+        entity = {k: v for k, v in entity.items() if v is not None}
+        upd_genre = self.book_genre_repository.update(entity)
+        return upd_genre
     
+    def delete_genre(self, id: int):
+        return self.book_genre_repository.delete(id)
     

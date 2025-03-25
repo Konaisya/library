@@ -89,7 +89,7 @@ class UserLogin(BaseModel):
 class User(BaseModel):
     id: int
     name: str
-    school_class: Optional[SchoolClass]
+    school_class: Optional[SchoolClass] = None 
     role: str
     email: str
     password: str
@@ -97,5 +97,6 @@ class User(BaseModel):
 class UserResponse(BaseModel):
     id: int
     name: str
+    school_class: Optional[SchoolClass] = None 
     email: str
     school_class: Optional[str] = None 

@@ -59,18 +59,15 @@ class Book(BaseModel):
     publisher: Publisher
     year: int
     ISBN: str
-    quantity: int
+    count: int
 
-
-class CreateBookItem(BaseModel):
-    id_book: int
-    is_availible: bool
-
-class UpdateBookItem(BaseModel):
-    id_book: Optional[int]
-    is_availible: Optional[bool]
-
-class BookItem(BaseModel):
+class BookOrder(BaseModel):
     id: int
-    book: Book
-    is_availible: int
+    name: str
+    description: str
+    image: str
+    id_publisher: int
+    year: int
+    ISBN: str
+    count: int
+

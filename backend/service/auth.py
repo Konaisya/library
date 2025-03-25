@@ -49,6 +49,7 @@ class AuthService:
     
     def login(self, user_login: UserLogin):
         user = self.get_user_filter_by(email=user_login.email)
+        print(f"User from DB: {user}")
         if not user:
             raise HTTPException(status_code=401, detail={'status': AuthStatus.INVALID_EMAIL_OR_PASSWORD.value})
         if not pbkdf2_sha256.verify(user_login.password, user.password):

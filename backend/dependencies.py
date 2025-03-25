@@ -46,19 +46,14 @@ def get_author_assoc_repository(db: Session = Depends(get_session)):
 def get_book_repository(db: Session = Depends(get_session)):
     return BookRepository(model=Book, session=db)
 
-def get_book_item_repository(db: Session = Depends(get_session)):
-    return BookRepository(model=BookItem, session=db)
-
 def get_book_genre_repository(db: Session = Depends(get_session)):
     return BookRepository(model=Genre, session=db)
 
 def get_book_service(book_repository: BookRepository = Depends(get_book_repository),
-                     book_item_repository: BookRepository = Depends(get_book_item_repository),
                      book_genre_repository: BookRepository = Depends(get_book_genre_repository),
                      book_genre_assoc_repository: BookRepository = Depends(get_book_genre_assoc_repository),
                      book_author_assoc_repository: BookRepository = Depends(get_author_assoc_repository)):
     return BookService(book_repository=book_repository,
-                       book_item_repository=book_item_repository,
                        book_genre_repository=book_genre_repository,
                        book_genre_assoc_repository=book_genre_assoc_repository,
                        book_author_assoc_repository=book_author_assoc_repository)
@@ -80,3 +75,11 @@ def get_publisher_repository(db: Session = Depends(get_session)):
 
 def get_publisher_service(publisher_repository: PublisherRepository = Depends(get_publisher_repository)):
     return PublisherService(publisher_repository = publisher_repository)
+
+
+# Orders
+def get_order_repository(db: Session = Depends(get_session)):
+    return OrderRepository(model=Order, session=db)
+
+def get_order_service(order_repository: OrderRepository = Depends(get_order_repository)) -> OrderService:
+    return OrderService(order_repository=order_repository)
