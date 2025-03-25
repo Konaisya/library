@@ -1,7 +1,7 @@
 from utils.abstract_repository import IREpository
 from models.books import *
 from models.authors import AuthorBook, Author
-from schemas.authors import *
+from schemas.authors import CreateAuthor, UpdateAuthor
 from dependencies import AuthorRepository, BookRepository
 from utils.enums import Status
 

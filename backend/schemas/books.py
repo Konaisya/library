@@ -24,6 +24,7 @@ class CreateBook(BaseModel):
     id_publisher: int
     year: int
     ISBN: str
+    count: int
 
     @field_validator('year')
     def validate_year(cls, value):
@@ -41,6 +42,7 @@ class UpdateBook(BaseModel):
     id_publisher: Optional[int] = None
     year: Optional[int] = None
     ISBN: Optional[str] = None
+    count: Optional[int] = None
 
     @field_validator('year')
     def validate_year(cls, value):
