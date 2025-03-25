@@ -33,7 +33,10 @@ class BookService:
         return self.book_repository.get_one_filter_by(**filter)
     
     def create_book(self, create_data: CreateBook):
-        new_book = self.book_repository.add(create_data.model_dump())
+        create_data_dict = create_data.model_dump()
+        ids_author = create_data_dict.pop('ids_author')
+        ids_genre = create_data_dict.pop('ids_genre')
+        new_book = self.book_repository.add(create_data_dict)
         if not new_book:
             return Status.FAILED.value
         
