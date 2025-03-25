@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Book, User, Settings, ShoppingCart } from "lucide-react"; // Иконки из lucide-react
+import { Book, User, Settings, ShoppingCart } from "lucide-react"; 
 import { useRouter } from "next/navigation";
 import styles from "./AdminNavbar.module.css";
 
