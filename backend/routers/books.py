@@ -7,6 +7,14 @@ from utils.image import save_image
 
 router = APIRouter()
 
+@router.post('/', status_code=201)
+async def create_book(book_data: CreateBook,
+                      book_service: BookService = Depends(get_book_service)):
+    new_book = book_service.create_book(book_data)
+    if not new_book:
+        raise HTTPException(status_code=400, detail={'status': Status.FAILED.value})
+    return new_book
+
 @router.get('/', status_code=200)
 async def get_all_books(name: str | None = Query(None),
                         description: str | None = Query(None),

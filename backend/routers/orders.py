@@ -30,7 +30,7 @@ async def get_all_orders(id_user: int | None = Query(None),
                          book_service: BookService = Depends(get_book_service),
                          user = Depends(get_current_admin)):
     filter = {k: v for k, v in locals().items() if v is not None 
-          and k not in {"order_service", "user_service", "book_service"}}
+          and k not in {"order_service", "user_service", "book_service", "user"}}
     orders = order_service.get_all_orders_filter_by(**filter)
     response = []
     for order in orders:
