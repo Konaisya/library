@@ -67,7 +67,6 @@ class BookService:
         self.book_genre_assoc_repository.session.query(GenreBook).filter_by(id_book=id).delete()
         return self.book_repository.delete(id)
     
-
     # Genre
     def get_all_genres_filter_by(self, id_book: int = None, **filter):
         query = self.book_genre_repository.session.query(Genre)
@@ -95,5 +94,7 @@ class BookService:
         return upd_genre
     
     def delete_genre(self, id: int):
+        self.book_genre_assoc_repository.session.query(GenreBook).filter_by(id_genre=id).delete()
         return self.book_genre_repository.delete(id)
+    
     

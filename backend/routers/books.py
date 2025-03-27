@@ -89,3 +89,13 @@ async def delete_book(id: int, book_service: BookService = Depends(get_book_serv
     if book is None:
         raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
     book_delete = book_service.delete_book(id=id)
+
+@router.patch('/{id}/image', status_code=200)
+async def update_book_image(id: int, image: UploadFile = File(...),
+                            book_service: BookService = Depends(get_book_service)):
+    book = book_service.get_one_book_filter_by(id=id)
+    if not book:
+        raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
+    upd_book = book_service.update_book(id, UpdateBook(image=image.filename))
+    image_name = save_image(image)
+    return {'status': Status.SUCCESS.value, 'update_image': image_name}

@@ -34,7 +34,8 @@ class AuthorService:
         entity['id'] = id
         entity = {k: v for k, v in entity.items() if v is not None}
         upd_author = self.author_repository.update(entity)
-        return upd_author\
+        return upd_author
     
     def delete_author(self, id: int):
+        self.book_author_assoc_repository.session.query(AuthorBook).filter_by(id_author=id).delete()
         return self.author_repository.delete(id)
