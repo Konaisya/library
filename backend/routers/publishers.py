@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, File, UploadFile
-from dependencies import get_publisher_service, PublisherService
+from dependencies import get_publisher_service, PublisherService, get_book_service, BookService
 from schemas.publishers import *
 from utils.enums import Status
 from utils.image import save_image
@@ -42,10 +42,16 @@ async def update_publisher(id: int, upd_data: UpdatePublisher,
     return {'status': Status.SUCCESS.value, 'update_publisher': upd_publisher}
 
 @router.delete('/{id}', status_code=200)
-async def delete_publisher(id: int, publisher_service: PublisherService = Depends(get_publisher_service)):
+async def delete_publisher(id: int, 
+                           publisher_service: PublisherService = Depends(get_publisher_service),
+                           book_service: BookService = Depends(get_book_service)):
     publisher = publisher_service.get_one_publisher_filter_by(id=id)
     if not publisher:
         raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
+    books_publisher = book_service.get_all_books_filter_by(id_publisher=id)
+    if books_publisher:
+        for book in books_publisher:
+            book_service.delete_book(book.id)
     publisher_delete = publisher_service.delete_publisher(id)
     return {'status': Status.SUCCESS.value}
 

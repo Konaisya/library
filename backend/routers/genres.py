@@ -26,7 +26,7 @@ async def get_all_genres_filter_by(name: str | None = Query(None),
 async def get_genre(id: int, book_service: BookService = Depends(get_book_service)):
     genre = book_service.get_one_genre_filter_by(id=id)
     if genre is None:
-        raise HTTPException(status_code=404, detail="Author not found")
+        raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
     return Genre(**genre.__dict__)
 
 @router.put('/{id}', status_code=200)
@@ -35,7 +35,7 @@ async def update_genre(id: int,
                        book_service: BookService = Depends(get_book_service)):
     genre = book_service.get_one_genre_filter_by(id=id)
     if genre is None:
-        raise HTTPException(status_code=404, detail="Author not found")
+        raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
     genre_update = book_service.update_genre(id, update_data)
     return genre_update
 
@@ -43,6 +43,6 @@ async def update_genre(id: int,
 async def delete_genre(id: int, book_service: BookService = Depends(get_book_service)):
     genre = book_service.get_one_genre_filter_by(id=id)
     if genre is None:
-        raise HTTPException(status_code=404, detail="Author not found")
+        raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
     genre_delete = book_service.delete_genre(id)
     return {'status': Status.SUCCESS.value}
