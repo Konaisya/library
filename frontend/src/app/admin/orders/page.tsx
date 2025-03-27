@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Image from "next/image";
-
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 interface Order {
   id: number;
   user: {
@@ -41,6 +41,7 @@ const statusOptions = [
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const isAdmin = useAdminCheck();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -56,7 +57,7 @@ export default function OrdersPage() {
       setLoading(false);
     })
     .catch(error => {
-      console.error("Ошибка загрузки заказов:", error);
+      console.log("Ошибка загрузки заказов:", error);
       setLoading(false);
     });
   }, []);
@@ -80,10 +81,10 @@ export default function OrdersPage() {
       ));
     })
     .catch(error => {
-      console.error("Ошибка обновления статуса:", error);
+      console.log("Ошибка обновления статуса:", error);
     });
   };
-
+  if (isAdmin === null) return <p className="text-center text-lg font-semibold mt-10">Проверка прав доступа...</p>;
   if (loading) {
     return <p className="text-center text-lg font-semibold mt-10">Загрузка заказов...</p>;
   }

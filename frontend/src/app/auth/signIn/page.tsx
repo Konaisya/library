@@ -57,9 +57,14 @@ export default function SignIn() {
           router.push("/profile/user");
         }
       }
-    } catch (err: any) {
-      console.error("Ошибка входа:", err.response?.data || err.message);
-      setError(err.response?.data?.detail || "Ошибка входа.");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Ошибка входа:", err.response?.data || err.message);
+        setError(err.response?.data?.detail || "Ошибка входа.");
+      } else {
+        console.error("Неизвестная ошибка входа:", err);
+        setError("Произошла неизвестная ошибка.");
+      }
     }
   };
   

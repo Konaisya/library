@@ -27,7 +27,7 @@ export default function AuthorsPage() {
       className="container mx-auto p-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.4 }}
     >
       <motion.h1 
         className="text-3xl font-bold mb-6 text-center"
@@ -43,7 +43,7 @@ export default function AuthorsPage() {
         animate="visible"
         variants={{
           hidden: { opacity: 0, scale: 0.95 },
-          visible: { opacity: 1, scale: 1, transition: { staggerChildren: 0.2 } }
+          visible: { opacity: 1, scale: 1, transition: { ease: "easeOut", duration: 0.1 } }
         }}
       >
         {authors.map(author => (
@@ -53,7 +53,7 @@ export default function AuthorsPage() {
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             className="bg-white shadow-lg rounded-lg p-4 text-center"
           >
              <Link href={`/authors/${author.id}`}>

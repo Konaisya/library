@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { BASE_URL } from "@/links/APIURL";
-
+import Image from "next/image";
 interface Publisher {
   id: number;
   name: string;
@@ -20,13 +20,16 @@ export default function PublishersPage() {
     axios.get<Publisher[]>("http://127.0.0.1:8000/api/publishers/")
       .then((response) => {
         setPublishers(response.data);
-        
       })
       .catch((error) => {
-        console.error("Ошибка загрузки издателей:", error);
+        console.log("Ошибка загрузки издателей:", error);
         setPublishers([]);
       });
   }, []);
+
+  if (publishers.length === 0) {
+    return <p className="text-center mt-10">Загрузка...</p>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-10">
@@ -50,7 +53,10 @@ export default function PublishersPage() {
               whileHover={{ scale: 1.05 }}
               onClick={() => router.push(`/publishers/${publisher.id}`)}
             >
-              <img
+              <Image
+                width={300}
+                height={300}
+                objectFit="cover"
                 src={`${BASE_URL}${publisher.image}`}
                 alt={publisher.name}
                 className="w-full h-40 object-cover rounded-lg"

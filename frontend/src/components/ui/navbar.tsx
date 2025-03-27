@@ -42,7 +42,7 @@ export const Navbar = () => {
         setAuthLink("/admin");
       } else if (role) {
         setAuthLabel("Профиль");
-        setAuthLink("/profile");
+        setAuthLink("/profile/user");
       } else {
         setAuthLabel("Авторизация");
         setAuthLink("/auth/signIn");

@@ -12,7 +12,7 @@ interface Admin {
   email: string;
 }
 
-function getRoleFromToken(token: string): string | null {
+export function getRoleFromToken(token: string): string | null {
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
     return payload.role || null;
@@ -50,17 +50,16 @@ export default function AdminDashboard() {
     } else {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-
+  
     if (!token) {
-      console.error("Токен отсутствует, перенаправление на главную");
-      router.push("/");
+      console.log("Токен отсутствует");
+      router.push("/404");
       return;
     }
-  
     axios.get("http://127.0.0.1:8000/api/users/me", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -71,13 +70,13 @@ export default function AdminDashboard() {
         setAdmin(response.data);
       })
       .catch(error => {
-        console.error("Ошибка загрузки данных админа:", error);
+        console.log("Ошибка загрузки данных админа:", error);
         if (error.response?.status === 401) {
           localStorage.removeItem("authToken"); 
           router.push("/"); 
         }
       });
-  }, []);
+  }, [router]);
 
   if (isLoading || !admin) return <p className="text-center text-lg font-semibold mt-10">Загрузка...</p>;
 
@@ -94,14 +93,19 @@ export default function AdminDashboard() {
     router.push(path);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    router.push("/"); 
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100 justify-center items-center">
       <div className="flex flex-col items-center">
         <div className="flex justify-between items-center mb-6 w-full max-w-4xl">
           <h1 className="text-3xl font-bold text-gray-800">Админ Панель</h1>
-          <Link href="/" className="text-indigo-600 hover:underline">
+          <button onClick={handleLogout} className="text-indigo-600 hover:underline">
             Выйти
-          </Link>
+          </button>
         </div>
         <motion.div
           className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 mb-6 w-full max-w-4xl"
@@ -152,7 +156,7 @@ export default function AdminDashboard() {
                 </motion.div>
               ))}
               <motion.div
-                className="p-6 bg-red-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-red-600 transition-all flex items-center justify-center"
+                className="p-6 bg-red-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-red-600 transition-bg flex items-center justify-center"
                 onClick={() => setSelectedAction(null)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

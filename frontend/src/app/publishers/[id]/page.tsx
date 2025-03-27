@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface Publisher {
   id: number;
@@ -33,7 +34,9 @@ export default function PublisherDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <img
+        <Image
+          width={200}
+          height={200}
           src={`http://127.0.0.1:8000/${publisher.image}`}
           alt={publisher.name}
           className="w-full h-64 object-cover rounded-lg mb-4"

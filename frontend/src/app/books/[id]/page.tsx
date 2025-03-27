@@ -38,12 +38,8 @@ interface Book {
   publisher: Publisher;
   year: number;
   ISBN: string;
-  quantity: number;
-}
-
-interface ApiResponse {
-  status: string;
-  book: Book;
+  quantity: number; 
+  count: number;
 }
 
 export default function BookDetailPage() {
@@ -56,12 +52,15 @@ export default function BookDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-
+  
     axios
-      .get<ApiResponse>(`${API_URL}books/${id}`)
+      .get<Book>(`${API_URL}books/${id}`)
       .then((response) => {
         console.log("API Response:", response.data);
-        setBook(response.data.book);
+        setBook({
+          ...response.data,
+          quantity: response.data.count, 
+        });
       })
       .catch((error) => {
         console.error("Ошибка загрузки книги:", error);
@@ -69,6 +68,7 @@ export default function BookDetailPage() {
       })
       .finally(() => setLoading(false));
   }, [id]);
+  
 
   if (loading) {
     return (
@@ -100,24 +100,30 @@ export default function BookDetailPage() {
         <h1 className="text-3xl font-bold text-gray-800">{book.name}</h1>
         <p className="text-gray-600 mt-2">{book.description}</p>
         <p className="text-gray-700 mt-4">
-          <strong>Авторы:</strong>{" "}
-                {book.authors.map((author, index) => (
-                  <span key={author.id}>
-                    {index > 0 && ", "}
-                    <Link href={`/authors/${author.id}`} className="text-blue-500 hover:underline">
-                      {author.name}
-                    </Link>
-                  </span>
-                ))}
-              </p>
+        <strong>Авторы:</strong>{" "}
+            {book.authors.map((author, index) => (
+              <span key={author.id}>
+                {index > 0 && ", "}
+                <Link href={`/authors/${author.id}`} className="text-blue-500 hover:underline">
+                  {author.name}
+                </Link>
+              </span>
+            ))}
+        </p>
+
+        <p className="text-gray-700">
+          <strong>Издательство:</strong>{" "}
+          <Link href={`/publishers/${book.publisher.id}`} className="text-blue-500 hover:underline">
+            {book.publisher.name}
+          </Link>{" "}
+          (основано в {book.publisher.foundation_year})
+        </p>
+
         <p className="text-gray-700">
           <strong>Жанры:</strong>{" "}
           {book.genres.map((genre) => genre.name).join(", ")}
         </p>
-        <p className="text-gray-700">
-          <strong>Издательство:</strong> {book.publisher.name} (основано в{" "}
-          {book.publisher.foundation_year})
-        </p>
+        
         <p className="text-gray-700">
           <strong>Год выпуска:</strong> {book.year}
         </p>
