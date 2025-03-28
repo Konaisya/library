@@ -38,8 +38,6 @@ export default function UserProfile() {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-
-    // Получаем данные пользователя
     axios.get("http://127.0.0.1:8000/api/users/me", {
       headers: { Authorization: `Bearer ${token}` },
       withCredentials: true,
@@ -48,14 +46,14 @@ export default function UserProfile() {
         setUser(response.data);
       })
       .catch(error => {
-        console.error("Ошибка загрузки пользователя:", error);
-        router.push("/login"); // Перенаправление на страницу входа
+        console.log("Ошибка загрузки пользователя:", error);
+        router.push("/");
       });
   }, [router]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    axios.get("http://127.0.0.1:8000/api/orders/", {
+    axios.get(`http://127.0.0.1:8000/api/orders/`, {
       headers: { Authorization: `Bearer ${token}` },
       withCredentials: true,
     })
@@ -69,6 +67,11 @@ export default function UserProfile() {
       });
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("authToken"); 
+    router.push("/auth/signIn");
+  };
+
   if (loading) {
     return <p className="text-center text-lg font-semibold mt-10">Загрузка...</p>;
   }
@@ -81,7 +84,12 @@ export default function UserProfile() {
     <div className="flex min-h-screen bg-gray-100 justify-center items-center">
       <div className="flex flex-col items-center p-6">
         <div className="flex justify-between items-center mb-6 w-full max-w-4xl">
-          <h1 className="text-3xl font-bold text-gray-800">Профиль пользователя</h1>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition duration-300"
+          >
+            Выйти
+          </button>
         </div>
 
         <motion.div

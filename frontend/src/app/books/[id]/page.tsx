@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { BASE_URL, API_URL } from "@/links/APIURL";
 import Link from "next/link";
+
 interface Author {
   id: number;
   name: string;
@@ -38,7 +39,7 @@ interface Book {
   publisher: Publisher;
   year: number;
   ISBN: string;
-  quantity: number; 
+  quantity: number;
   count: number;
 }
 
@@ -49,6 +50,10 @@ export default function BookDetailPage() {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [orderError, setOrderError] = useState("");  // Ошибка при заказе
+  const [isOrdering, setIsOrdering] = useState(false);  // Загрузка при заказе
+
+  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
     if (!id) return;
@@ -68,7 +73,55 @@ export default function BookDetailPage() {
       })
       .finally(() => setLoading(false));
   }, [id]);
-  
+
+  const getNextValidDate = (): string => {
+    const today = new Date();
+    const twoMonthsLater = new Date(today.getFullYear(), today.getMonth() + 2, today.getDate());
+    let nextValidDate = today;
+
+    while (nextValidDate <= twoMonthsLater) {
+      nextValidDate.setDate(nextValidDate.getDate() + 1);
+      const dayOfWeek = nextValidDate.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) { 
+        break;
+      }
+    }
+
+    return nextValidDate.toISOString().split('T')[0];
+  };
+
+  const handleOrderBook = () => {
+    if (!token) {
+      setOrderError("Пожалуйста, войдите в систему для заказа.");
+      return;
+    }
+    if (book && book.quantity === 0) {
+      setOrderError("Книга не доступна для заказа.");
+      return;
+    }
+    setIsOrdering(true);
+    const orderData = {
+      id_book: book?.id, 
+      due_date: getNextValidDate(),  
+    };
+    console.log("Отправка данных на сервер:", orderData); 
+
+    axios.post(`${API_URL}orders/`, orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .catch((error) => {
+        console.error("Ошибка при оформлении заказа:", error);
+        if (error.response) {
+          console.log("Ответ от сервера:", error.response.data);  
+        }
+        setOrderError("Ошибка при оформлении заказа.");
+      })
+      .finally(() => setIsOrdering(false));
+  };
 
   if (loading) {
     return (
@@ -133,6 +186,18 @@ export default function BookDetailPage() {
         <p className="text-gray-700">
           <strong>В наличии:</strong> {book.quantity} шт.
         </p>
+
+        <button
+          onClick={handleOrderBook}
+          disabled={book.quantity === 0 || isOrdering} 
+          className={`mt-4 py-2 px-4 rounded-md text-white ${
+            book.quantity === 0 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {isOrdering ? "Оформление..." : "Заказать книгу"}
+        </button>
+
+        {orderError && <p className="text-red-500 mt-2">{orderError}</p>}
       </motion.div>
     </div>
   );

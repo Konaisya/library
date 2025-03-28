@@ -71,7 +71,7 @@ export default function PublisherPage() {
     formData.append("image", imageFile);
 
     try {
-      await axios.patch(`${API_URL}publishers/${id}`, formData, {
+      await axios.patch(`${API_URL}publishers/${id}/image`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setSuccess(true);
