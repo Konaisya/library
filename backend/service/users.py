@@ -34,10 +34,11 @@ class UserService:
         return self.user_repository.delete(user_id)
     
 
-    def get_all_school_classes(self, **filter):
+    #School Classes
+    def get_all_school_classes_filter_by(self, **filter):
         return self.school_class_repository.get_all_filter_by(**filter)
     
-    def get_one_school_class(self, **filter):
+    def get_one_school_class_filter_by(self, **filter):
         return self.school_class_repository.get_one_filter_by(**filter)
     
     def create_school_class(self, create_data: CreateSchoolClass):
