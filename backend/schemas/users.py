@@ -9,22 +9,8 @@ class SchoolClass(BaseModel):
 class CreateSchoolClass(BaseModel):
     name: str
     
-    @field_validator('name')
-    @classmethod
-    def validate_name(cls, val: str):
-        if not re.match(r'^[a-zA-Z0-9\s]+$', val):
-            raise ValueError('Invalid school class name')
-        return val
-    
 class UpdateSchoolClass(BaseModel):
     name: str
-    
-    @field_validator('name')
-    @classmethod
-    def validate_name(cls, val: str):
-        if not re.match(r'^[a-zA-Z0-9\s]+$', val):
-            raise ValueError('Invalid school class name')
-        return val
 
 
 class UserCreate(BaseModel):

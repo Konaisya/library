@@ -12,7 +12,7 @@ def get_user_repository(db: Session = Depends(get_session)):
     return UserRepository(model=User, session=db)
 
 def get_school_class_repository(db: Session = Depends(get_session)):
-    return UserRepository(model=User, session=db)
+    return UserRepository(model=SchoolClass, session=db)
 
 def get_auth_service(user_repository: UserRepository = Depends(get_user_repository)) -> AuthService:
     return AuthService(user_repository=user_repository)

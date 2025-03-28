@@ -18,7 +18,7 @@ class UpdateGenre(BaseModel):
 class CreateBook(BaseModel):
     name: str
     description: str
-    image: str
+    image: Optional[str] = None
     ids_author: List[int]
     ids_genre: List[int]
     id_publisher: int
