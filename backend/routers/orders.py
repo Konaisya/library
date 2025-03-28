@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post('/', status_code=201)
 async def create_order(order_data: CreateOrder,
                        order_service: OrderService = Depends(get_order_service),
-                       ):
+                       user = Depends(get_current_user)):
     order_dict = order_data.dict()
     order_dict['id_user'] = user.id
     order_dict['checkout_date'] = datetime.now().strftime('%Y-%m-%d')
@@ -28,9 +28,15 @@ async def get_all_orders(id_user: int | None = Query(None),
                          order_service: OrderService = Depends(get_order_service),
                          user_service: UserService = Depends(get_user_service),
                          book_service: BookService = Depends(get_book_service),
-                         user = Depends(get_current_admin)):
-    filter = {k: v for k, v in locals().items() if v is not None 
-          and k not in {"order_service", "user_service", "book_service", "user"}}
+                         user = Depends(get_current_user)):
+    if user.role == "admin":
+        filter = {k: v for k, v in locals().items() if v is not None 
+                  and k not in {"order_service", "user_service", "book_service", "user"}}
+    else:
+        filter = {k: v for k, v in locals().items() if v is not None 
+                  and k not in {"order_service", "user_service", "book_service", "user"}}
+        filter['id_user'] = user.id
+    
     orders = order_service.get_all_orders_filter_by(**filter)
     response = []
     for order in orders:
@@ -53,8 +59,7 @@ async def get_order(id: int,
                     order_service: OrderService = Depends(get_order_service),
                     user_service: UserService = Depends(get_user_service),
                     book_service: BookService = Depends(get_book_service),
-                    user = Depends(get_current_user)
-                    ):
+                    user = Depends(get_current_user)):
     order = order_service.get_one_order_filter_by(id=id)
     user_order = user_service.get_user_filter_by(id=order.id_user)
     user_resp = UserResponse(**user_order.__dict__)
