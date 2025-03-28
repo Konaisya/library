@@ -1,0 +1,47 @@
+.pageNotFound {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+  }
+  
+  .container {
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .message {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  .goHomeButton {
+    background-color: #0070f3;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+    margin: 0 auto;
+  }
+  
+  .goHomeButton:hover {
+    background-color: #005bb5;
+  }
+  

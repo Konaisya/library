@@ -27,8 +27,10 @@ export default function SignUpPage() {
       console.log("Регистрация успешна!", response.data);
       setFormData({ name: "", email: "", password: "" });
     } catch (err) {
+      console.error("Ошибка при регистрации:", err);
       setError("Ошибка регистрации. Попробуйте снова.");
-    } finally {
+    }
+     finally {
       setLoading(false);
     }
   };
