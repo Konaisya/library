@@ -11,9 +11,9 @@ router = APIRouter()
 @router.post('/', status_code=201)
 async def create_order(order_data: CreateOrder,
                        order_service: OrderService = Depends(get_order_service),
-                       ):
+                       user = Depends(get_current_user)):
     order_dict = order_data.dict()
-    order_dict['id_user'] = 1
+    order_dict['id_user'] = user.id
     order_dict['order_date'] = datetime.now().strftime('%Y-%m-%d')
     order_dict['status'] = OrderStatus.PROCESSING.value
     order = order_service.create_order(order_dict)
@@ -78,7 +78,7 @@ async def update_order(id: int,
                        update_data: UpdateOrder,
                        order_service: OrderService = Depends(get_order_service),
                        book_service: BookService = Depends(get_book_service),
-                       ):
+                       user = Depends(get_current_user)):
     order = order_service.get_one_order_filter_by(id=id)
     if not order:
         raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
