@@ -9,7 +9,8 @@ class Order(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     id_user: Mapped[int] = mapped_column(ForeignKey("users.id"))
     id_book: Mapped[int] = mapped_column(ForeignKey("books.id"))
-    checkout_date: Mapped[date] = mapped_column(DATE) # Дата выдачи
+    order_date: Mapped[date] = mapped_column(DATE) # Дата создания заказа
+    checkout_date: Mapped[date] = mapped_column(DATE, nullable=True) # Дата выдачи
     due_date: Mapped[date] = mapped_column(DATE) # Дата обязательного возврата
     return_date: Mapped[date] = mapped_column(DATE, nullable=True) # Дата фактического возврата
     status: Mapped[str] = mapped_column(String(255)) 

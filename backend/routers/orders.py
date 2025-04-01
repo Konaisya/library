@@ -11,10 +11,10 @@ router = APIRouter()
 @router.post('/', status_code=201)
 async def create_order(order_data: CreateOrder,
                        order_service: OrderService = Depends(get_order_service),
-                       user = Depends(get_current_user)):
+                       ):
     order_dict = order_data.dict()
-    order_dict['id_user'] = user.id
-    order_dict['checkout_date'] = datetime.now().strftime('%Y-%m-%d')
+    order_dict['id_user'] = 1
+    order_dict['order_date'] = datetime.now().strftime('%Y-%m-%d')
     order_dict['status'] = OrderStatus.PROCESSING.value
     order = order_service.create_order(order_dict)
     if not order:
@@ -78,7 +78,7 @@ async def update_order(id: int,
                        update_data: UpdateOrder,
                        order_service: OrderService = Depends(get_order_service),
                        book_service: BookService = Depends(get_book_service),
-                       user = Depends(get_current_user)):
+                       ):
     order = order_service.get_one_order_filter_by(id=id)
     if not order:
         raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
@@ -92,9 +92,13 @@ async def update_order(id: int,
 
         if new_status == OrderStatus.CHECKED_OUT.value or new_status == OrderStatus.LOST.value:
             if count <= 0:
-                raise HTTPException(status_code=400, detail={'status': Status.FAILED.value})
+                raise HTTPException(status_code=400, detail={'status': Status.FAILED.value, 'message': 'zero count of books'})
             count -= 1
             upd_book = book_service.update_book(id=book.id, data=UpdateBook(count=count))
+            if new_status == OrderStatus.CHECKED_OUT.value:
+                upd_data_dict = update_data.dict(exclude_unset=True)
+                upd_data_dict["checkout_date"] = datetime.now().strftime('%Y-%m-%d')
+                update_data = UpdateOrder(**upd_data_dict)
 
         elif new_status == OrderStatus.RETURNED.value or new_status == OrderStatus.CANCELLED.value:
             count += 1
