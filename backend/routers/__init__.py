@@ -5,6 +5,7 @@ from routers.authors import router as author_router
 from routers.books import router as book_router
 from routers.genres import router as genre_router
 from routers.orders import router as order_router
+from routers.school_classes import router as school_class_router
 from fastapi import APIRouter
 
 routers = APIRouter(prefix='/api')
@@ -15,3 +16,4 @@ routers.include_router(author_router, prefix='/authors', tags=['authors'])
 routers.include_router(book_router, prefix='/books', tags=['books'])
 routers.include_router(genre_router, prefix='/genres', tags=['genres'])
 routers.include_router(order_router, prefix='/orders', tags=['orders'])
+routers.include_router(school_class_router, prefix='/school_classes', tags=['school_classes'])
