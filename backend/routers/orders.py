@@ -3,7 +3,7 @@ from dependencies import *
 from schemas.orders import *
 from schemas.users import UserResponse
 from schemas.books import BookOrder, UpdateBook
-from utils.enums import OrderStatus, Status
+from utils.enums import OrderStatus, Status, Roles
 from datetime import datetime
 
 router = APIRouter()
@@ -29,14 +29,13 @@ async def get_all_orders(id_user: int | None = Query(None),
                          user_service: UserService = Depends(get_user_service),
                          book_service: BookService = Depends(get_book_service),
                          user = Depends(get_current_user)):
-    if user.role == "admin":
+    if user.role == Roles.ADMIN.value:
         filter = {k: v for k, v in locals().items() if v is not None 
                   and k not in {"order_service", "user_service", "book_service", "user"}}
     else:
         filter = {k: v for k, v in locals().items() if v is not None 
                   and k not in {"order_service", "user_service", "book_service", "user"}}
         filter['id_user'] = user.id
-    
     orders = order_service.get_all_orders_filter_by(**filter)
     response = []
     for order in orders:
