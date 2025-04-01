@@ -11,7 +11,17 @@ export default function SignIn() {
   const [error, setError] = useState("");
   const { email, password } = formData;
 
-//   const router = useRouter(); 
+
+  function getRoleFromToken(token: string): string | null {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1])); 
+      return payload.role || null; 
+    } catch (error) {
+      console.error("Ошибка декодирования токена:", error);
+      return null;
+    }
+  }
+  const router = useRouter(); 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,12 +35,10 @@ export default function SignIn() {
     formData.append("email", email);
     formData.append("password", password);
   
-    console.log("Отправляемые данные:", Object.fromEntries(formData.entries()));
-  
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/auth/login",
-        formData, 
+        formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
@@ -40,17 +48,26 @@ export default function SignIn() {
       const token = response.data.access_token;
       if (token) {
         localStorage.setItem("authToken", token);
-        console.log("Токен сохранён:", token);
-        // router.push("/");
+        const role = getRoleFromToken(token); 
+        console.log("Роль пользователя:", role);
+  
+        if (role === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/profile/user");
+        }
       }
-    } catch (err: any) {
-      console.error("Ошибка входа:", err.response?.data || err.message);
-      setError(err.response?.data?.detail || "Ошибка входа.");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Ошибка входа:", err.response?.data || err.message);
+        setError(err.response?.data?.detail || "Ошибка входа.");
+      } else {
+        console.error("Неизвестная ошибка входа:", err);
+        setError("Произошла неизвестная ошибка.");
+      }
     }
   };
   
-  
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600">
       <motion.div 

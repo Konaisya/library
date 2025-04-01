@@ -85,3 +85,4 @@ class UserResponse(BaseModel):
     name: str
     school_class: Optional[SchoolClass] = None 
     email: str
+    school_class: Optional[str] = None 

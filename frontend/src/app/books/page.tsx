@@ -16,6 +16,7 @@ interface Book {
   ISBN: string;
   authors: { id: number; name: string }[];
   publisher: { id: number; name: string };
+  genres: { id: number; name: string }[];
   quantity: number;
 }
 
@@ -50,15 +51,27 @@ function getUniqueAuthors(books: Book[]): string[] {
   return Array.from(new Set(authors));
 }
 
+function getUniqueGenres(books: Book[]): string[] {
+  const genres = books.flatMap(book => book.genres.map(genre => genre.name));
+  return Array.from(new Set(genres));
+}
+
+function getUniquePublishers(books: Book[]): string[] {
+  const publishers = books.map(book => book.publisher.name);
+  return Array.from(new Set(publishers));
+}
+
 export default function BooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [authorFilter, setAuthorFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
+  const [genreFilter, setGenreFilter] = useState('');
+  const [publisherFilter, setPublisherFilter] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [itemsPerPage] = useState(6);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<GroupedBook | null>(null);
 
@@ -76,17 +89,21 @@ export default function BooksPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, authorFilter, yearFilter]);
+  }, [searchTerm, authorFilter, yearFilter, genreFilter, publisherFilter]);
 
   const groupedBooks = groupBooksByNameAndPublisher(books);
   const uniqueAuthors = getUniqueAuthors(books);
+  const uniqueGenres = getUniqueGenres(books);
+  const uniquePublishers = getUniquePublishers(books);
 
   const filteredBooks = groupedBooks.filter(book => {
     const matchesSearchTerm = book.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesAuthor = authorFilter ? book.authors.some(author => author.name.toLowerCase().includes(authorFilter.toLowerCase())) : true;
     const matchesYear = yearFilter ? book.year.toString().includes(yearFilter) : true;
-    return matchesSearchTerm && matchesAuthor && matchesYear;
+    const matchesGenre = genreFilter ? book.genres.some(genre => genre.name.toLowerCase().includes(genreFilter.toLowerCase())) : true;
+    const matchesPublisher = publisherFilter ? book.publisher.name.toLowerCase().includes(publisherFilter.toLowerCase()) : true;
+    return matchesSearchTerm && matchesAuthor && matchesYear && matchesGenre && matchesPublisher;
   });
 
   const indexOfLastBook = currentPage * itemsPerPage;
@@ -137,69 +154,57 @@ export default function BooksPage() {
       </motion.h1>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-        {currentBooks.map((book, index) => (
-          <LazyMotion key={book.id} features={domAnimation}>
-            <motion.div
-              className={`bg-white p-4 rounded-lg shadow-md cursor-pointer flex flex-col justify-between ${book.quantity === 0 ? 'bg-gray-300' : ''}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              whileHover={{ transition: { duration: 0.3 }, scale: 1.05, boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)" }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div>
-                {book.quantity > 0 ? (
-                  <Link href={`/books/${book.id}`}>
-                    <Image
-                      src={`${BASE_URL}${book.image}`}
-                      alt={book.name}
-                      width={400}
-                      height={400}
-                      className="object-cover rounded-md mb-4 mx-auto"
-                    />
-                    <h2 className="text-xl font-semibold text-gray-800 text-center">{book.name}</h2>
+      {currentBooks.map((book, index) => (
+        <LazyMotion key={book.id} features={domAnimation}>
+          <motion.div
+            className={`p-4 rounded-lg shadow-md flex flex-col justify-between transition-shadow 
+              ${book.quantity === 0 ? 'bg-gray-300' : 'bg-white'}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: index * 0.1 }}
+            whileHover={{ scale: 1.05, boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)" }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link href={`/books/${book.id}`}>
+              <Image
+                src={`${BASE_URL}${book.image}`}
+                alt={book.name}
+                width={400}
+                height={400}
+                className="object-cover rounded-md mb-4 mx-auto"
+              />
+              <h2 className={`text-xl font-semibold text-center ${book.quantity === 0 ? 'text-gray-500' : 'text-gray-800'}`}>
+                {book.name}
+              </h2>
+            </Link>
+
+            <p className="text-gray-600 text-center">
+              {book.authors.map((author, index) => (
+                <span key={author.id}>
+                  {index > 0 && ", "}
+                  <Link href={`/authors/${author.id}`} className="text-blue-500 hover:underline">
+                    {author.name}
                   </Link>
-                ) : (
-                  <div>
-                    <Image
-                      src={`${BASE_URL}${book.image}`}
-                      alt={book.name}
-                      width={400}
-                      height={400}
-                      className="object-cover rounded-md mb-4 mx-auto"
-                    />
-                    <h2 className="text-xl font-semibold text-gray-800 text-center">{book.name}</h2>
-                  </div>
-                )}
+                </span>
+              ))}
+            </p>
+            
+            {book.quantity === 0 && (
+              <p className="text-red-500 text-center font-bold mt-2">Книга недоступна</p>
+            )}
 
-                <p className="text-gray-600 text-center">
-                  {book.authors.map((author, index) => (
-                    <span key={author.id}>
-                      {index > 0 && ", "}
-                      <Link href={`/authors/${author.id}`} className="text-blue-500 hover:underline">
-                        {author.name}
-                      </Link>
-                    </span>
-                  ))}
-                </p>
-                {book.quantity === 0 && (
-                  <p className="text-red-500 text-center font-bold mt-2">Книга недоступна</p>
-                )}
-              </div>
-
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openModal(book);
-                }}
-                className={`mt-2 text-white relative bottom-0 ${book.quantity === 0 ? 'bg-gray-500' : 'bg-blue-500'} hover:${book.quantity === 0 ? 'bg-gray-600' : 'bg-blue-600'} rounded-lg px-4 py-2 w-full`}
-                disabled={book.quantity === 0}
-              >
-                Показать все ISBNs
-              </Button>
-            </motion.div>
-          </LazyMotion>
-        ))}
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                openModal(book);
+              }}
+              className={`mt-2 text-white relative bottom-0 ${book.quantity === 0 ? 'bg-gray-500' : 'bg-blue-500'} hover:${book.quantity === 0 ? 'bg-gray-600' : 'bg-blue-600'} rounded-lg px-4 py-2 w-full`}
+            >
+              Показать все ISBNs
+            </Button>
+          </motion.div>
+        </LazyMotion>
+      ))}
       </div>
 
       {isModalOpen && selectedBook && (
@@ -293,9 +298,33 @@ export default function BooksPage() {
               </option>
             ))}
           </select>
+          <select
+            value={genreFilter}
+            onChange={(e) => setGenreFilter(e.target.value)}
+            className="mb-4 p-2 border border-gray-300 rounded-md w-full"
+          >
+            <option value="">Все жанры</option>
+            {uniqueGenres.map((genre, index) => (
+              <option key={index} value={genre}>
+                {genre}
+              </option>
+            ))}
+          </select>
+          <select 
+            value={publisherFilter}
+            onChange={(e) => setPublisherFilter(e.target.value)}
+            className="mb-4 p-2 border border-gray-300 rounded-md w-full"
+          >
+            <option value="">Все издатели</option>
+            {uniquePublishers.map((publisher, index) => (
+              <option key={index} value={publisher}>
+                {publisher}
+              </option>
+            ))}
+          </select>
           <input
             type="text"
-            placeholder="Год..."
+            placeholder="Год выпуска"
             value={yearFilter}
             onChange={(e) => setYearFilter(e.target.value)}
             className="mb-4 p-2 border border-gray-300 rounded-md w-full"
