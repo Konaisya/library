@@ -9,7 +9,8 @@ class Order(BaseModel):
     id: int
     user: UserResponse
     book: BookOrder
-    checkout_date: date
+    order_date: date
+    checkout_date: Optional[date] = None
     due_date: date
     return_date: Optional[date] = None
     status: OrderStatus
@@ -27,6 +28,7 @@ class CreateOrder(BaseModel):
 class UpdateOrder(BaseModel):
     id_user: Optional[int] = None
     id_book: Optional[int] = None
+    order_date: Optional[date] = None
     checkout_date: Optional[date] = None
     due_date: Optional[date] = None
     return_date: Optional[date] = None
