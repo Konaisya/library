@@ -11,9 +11,24 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-// import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
+interface Author {
+    id: number;
+    name: string;
+  }
+  
+  interface Publisher {
+    id: number;
+    name: string;
+  }
+  
+  interface Genre {
+    id: number;
+    name: string;
+  }
+  
 export default function CreateBookPage() {
     const [form, setForm] = useState({
         name: "",
@@ -27,12 +42,12 @@ export default function CreateBookPage() {
         count: 0,
     });
 
-    const [authors, setAuthors] = useState<any[]>([]);
-    const [publishers, setPublishers] = useState<any[]>([]);
-    const [genres, setGenres] = useState<any[]>([]);
+    const [authors, setAuthors] = useState<Author[]>([]);
+    const [publishers, setPublishers] = useState<Publisher[]>([]);
+    const [genres, setGenres] = useState<Genre[]>([]);
     const [genreModalOpen, setGenreModalOpen] = useState(false);
     const [newGenreName, setNewGenreName] = useState("");
-    // const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const isAdmin = useAdminCheck();
 
 
     useEffect(() => {
@@ -46,11 +61,6 @@ export default function CreateBookPage() {
         setForm({ ...form, [name]: value });
     };
 
-    // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const file = e.target.files?.[0] || null;
-    //     setForm({ ...form, image: file });
-    //     setImagePreview(file ? URL.createObjectURL(file) : null);
-    // };
 
     const handleCreateGenre = async () => {
         if (!newGenreName.trim()) return;
@@ -62,6 +72,7 @@ export default function CreateBookPage() {
             setNewGenreName("");
             toast("Жанр успешно создан");  
         } catch (err) {
+            console.log(err);
             toast("Ошибка", {description: "Не удалось создать жанр"});
         }
     };
@@ -77,10 +88,13 @@ export default function CreateBookPage() {
             });
             toast("Книга успешно создана");  
         } catch (error) {
+            console.log(error);
             toast("Ошибка", {description: "Не удалось создать книгу"});
             
         }
     };
+
+    if (isAdmin === null) return <p className="text-center text-lg font-semibold mt-10">Проверка прав доступа...</p>;
     
 
     return (
@@ -97,36 +111,12 @@ export default function CreateBookPage() {
                 <Input placeholder="Введите название книги" name="name" value={form.name} onChange={handleChange} />
             </div>
 
-            {/* Описание */}
+
             <div className="space-y-1">
                 <Label>Описание</Label>
                 <Textarea placeholder="Краткое описание" name="description" value={form.description} onChange={handleChange} />
             </div>
 
-            {/* <div className="space-y-1">
-                <Label>Обложка (необязательно)</Label>
-                <Input type="file" accept="image/*" onChange={handleImageChange} />
-                <AnimatePresence>
-                    {imagePreview && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="relative rounded-xl overflow-hidden mt-2"
-                        >
-                            <img src={imagePreview} alt="Preview" className="w-full h-64 object-cover rounded-xl shadow" />
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="absolute top-2 right-2 backdrop-blur bg-white/60 hover:bg-white"
-                                onClick={() => { setForm({ ...form, image: null }); setImagePreview(null); }}
-                            >
-                                Удалить
-                            </Button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div> */}
 
             <div className="space-y-1">
                 <Label>Авторы</Label>

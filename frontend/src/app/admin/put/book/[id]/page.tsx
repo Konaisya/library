@@ -9,9 +9,39 @@ import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
+
+// interface Author {
+//     id: number;
+//     name: string;
+// }
+
+// interface Genre {
+//     id: number;
+//     name: string;
+// }
+
+interface Publisher {
+    id: number;
+    name: string;
+}
+
+
+interface BookForm {
+    name: string;
+    description: string;
+    image: File | null;
+    ids_author: number[];
+    ids_genre: number[];
+    id_publisher: number;
+    year: number;
+    ISBN: string;
+    count: number;
+}
+
 
 export default function EditBookPage() {
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<BookForm>({
         name: "",
         description: "",
         image: null,
@@ -22,10 +52,11 @@ export default function EditBookPage() {
         ISBN: "",
         count: 0,
     });
-    const [authors, setAuthors] = useState<any[]>([]);
-    const [publishers, setPublishers] = useState<any[]>([]);
-    const [genres, setGenres] = useState<any[]>([]);
+
+    const [publishers, setPublishers] = useState<Publisher[]>([]);
+   
     const [loading, setLoading] = useState(true);  
+    const isAdmin = useAdminCheck();
     const pathname = usePathname();
     const id = pathname.split("/").pop();
 
@@ -43,22 +74,27 @@ export default function EditBookPage() {
             setForm(data);
         } catch (error) {
             toast("Ошибка", { description: "Не удалось загрузить книгу" });
+            console.log("Ошибка загрузки книги:", error);
         } finally {
             setLoading(false); 
         }
     };
 
+    // const [authors, setAuthors] = useState<any[]>([]);
+    // const [genres, setGenres] = useState<any[]>([]);
+
     const fetchOtherData = async () => {
         try {
-            const authorsData = await axios.get("http://127.0.0.1:8000/api/authors/");
-            setAuthors(authorsData.data);
+            // const authorsData = await axios.get<Author[]>("http://127.0.0.1:8000/api/authors/");
+            // setAuthors(authorsData.data);
 
-            const publishersData = await axios.get("http://127.0.0.1:8000/api/publishers/");
+            const publishersData = await axios.get<Publisher[]>("http://127.0.0.1:8000/api/publishers/");
             setPublishers(publishersData.data);
 
-            const genresData = await axios.get("http://127.0.0.1:8000/api/genres/");
-            setGenres(genresData.data);
+            // const genresData = await axios.get<Genre[]>("http://127.0.0.1:8000/api/genres/");
+            // setGenres(genresData.data);
         } catch (error) {
+            console.log("Ошибка загрузки дополнительных данных:", error);
             toast("Ошибка", { description: "Не удалось загрузить дополнительные данные" });
         }
     };
@@ -70,6 +106,7 @@ export default function EditBookPage() {
             toast("Книга успешно обновлена");
         } catch (error) {
             toast("Ошибка", { description: "Не удалось обновить книгу" });
+            console.log("Ошибка обновления книги:", error);
         }
     };
 
@@ -87,6 +124,7 @@ export default function EditBookPage() {
                 toast("Изображение успешно обновлено");
             } catch (error) {
                 toast("Ошибка", { description: "Не удалось обновить изображение" });
+                console.log("Ошибка обновления изображения:", error);
             }
         } else {
             toast("Ошибка", { description: "Выберите изображение для загрузки" });
@@ -117,6 +155,7 @@ export default function EditBookPage() {
             </div>
         );
     }
+    if (isAdmin === null) return <p className="text-center text-lg font-semibold mt-10">Проверка прав доступа...</p>;
 
     return (
         <motion.div
@@ -160,7 +199,9 @@ export default function EditBookPage() {
                 />
                 {form.image && form.image instanceof File && (
                     <div className="mt-2">
-                        <img
+                        <Image
+                            width={400}
+                            height={300}
                             src={URL.createObjectURL(form.image)}
                             alt="Preview"
                             className="max-w-[400px] h-auto"

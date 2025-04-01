@@ -17,7 +17,10 @@ interface Order {
     name: string;
   };
   status: string;
-  created_at: string;
+  checkout_date: string | null;
+  due_date: string;
+  order_date: string;
+  return_date: string | null;
 }
 
 const statusOptions = [
@@ -35,6 +38,11 @@ export default function UserProfile() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const formatDate = (date: string | null) => {
+    if (!date) return "Не указано";
+    const parsedDate = new Date(date);
+    return isNaN(parsedDate.getTime()) ? "Некорректная дата" : parsedDate.toLocaleDateString(); 
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -125,9 +133,13 @@ export default function UserProfile() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <h3 className="text-lg font-semibold">{order.book.name}</h3>
+                  <h3 className="text-lg font-semibold"><strong>Название книги:</strong> {order.book.name}</h3>
                   <p className="text-sm">{status?.label}</p>
-                  <p className="text-sm text-gray-200">Дата заказа: {new Date(order.created_at).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-200">Дата заказа: {formatDate(order.order_date)}</p>
+                  <p className="text-sm text-gray-200">Дата выдачи книни: {formatDate(order.checkout_date)}</p>
+                  <p className="text-sm text-gray-200">Дата к которой нужно вернуть книгу: {formatDate(order.due_date)}</p>
+                  <p className="text-sm text-gray-200">Дата возврата книги: {formatDate(order.return_date)}</p>
+
                 </motion.div>
               );
             })}

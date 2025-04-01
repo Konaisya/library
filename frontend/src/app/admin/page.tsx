@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 interface Admin {
   id: number;
@@ -12,18 +12,10 @@ interface Admin {
   email: string;
 }
 
-export function getRoleFromToken(token: string): string | null {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.role || null;
-  } catch (error) {
-    console.error("Ошибка декодирования токена:", error);
-    return null;
-  }
-}
 
 export default function AdminDashboard() {
-  const [isLoading, setIsLoading] = useState(true);
+  const isAdmin = useAdminCheck();
+  // const [isLoading, setIsLoading] = useState(true);
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [selectedAction, setSelectedAction] = useState<{ title: string; id: string } | null>(null);
   const router = useRouter();
@@ -41,16 +33,6 @@ export default function AdminDashboard() {
     { title: "Удалить", action: "delete" },
   ];
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const role = token ? getRoleFromToken(token) : null;
-
-    if (role !== "ADMIN") {
-      router.push("/");
-    } else {
-      setIsLoading(false);
-    }
-  }, [router]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -78,7 +60,8 @@ export default function AdminDashboard() {
       });
   }, [router]);
 
-  if (isLoading || !admin) return <p className="text-center text-lg font-semibold mt-10">Загрузка...</p>;
+  if (!admin) return <p className="text-center text-lg font-semibold mt-10">Загрузка...</p>;
+  if (isAdmin === null) return <p className="text-center text-lg font-semibold mt-10">Проверка прав доступа...</p>;
 
   const handleActionClick = (action: { title: string; id: string } | { title: string; path: string }) => {
     if ("path" in action) {

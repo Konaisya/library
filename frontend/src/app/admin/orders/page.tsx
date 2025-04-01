@@ -26,10 +26,10 @@ interface Order {
   due_date: string;
   return_date: string | null;
   status: string;
+  order_date: string;
 }
 
 const statusOptions = [
-  { value: "PENDING", label: "🟠 Ожидание обработки" },
   { value: "PROCESSING", label: "🟡 В обработке" },
   { value: "READY_FOR_PICKUP", label: "📦 Готово к выдаче" },
   { value: "CHECKED_OUT", label: "📘 Выдано" },
@@ -62,27 +62,45 @@ export default function OrdersPage() {
     });
   }, []);
 
-  const handleStatusChange = (orderId: number, newStatus: string) => {
+  const handleStatusChange = async (orderId: number, newStatus: string) => {
     const token = localStorage.getItem("authToken");
 
-    axios.put(`http://127.0.0.1:8000/api/orders/${orderId}`, 
-      { status: newStatus },
-      {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.id === orderId ? { ...order, status: newStatus } : order
+      )
+    );
+  
+    try {
+      await axios.put(
+        `http://127.0.0.1:8000/api/orders/${orderId}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+  
+      const response = await axios.get("http://127.0.0.1:8000/api/orders/", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
         withCredentials: true,
-      }
-    )
-    .then(() => {
-      setOrders(orders.map(order =>
-        order.id === orderId ? { ...order, status: newStatus } : order
-      ));
-    })
-    .catch(error => {
-      console.log("Ошибка обновления статуса:", error);
-    });
+      });
+  
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Ошибка обновления статуса:", error);
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, status: orders.find(o => o.id === orderId)?.status || "PENDING" } : order
+        )
+      );
+    }
   };
   if (isAdmin === null) return <p className="text-center text-lg font-semibold mt-10">Проверка прав доступа...</p>;
   if (loading) {
@@ -104,7 +122,7 @@ export default function OrdersPage() {
             >
               <div className="flex items-center space-x-4">
                 <Image
-                  src={`/images/${order.book.image}`}
+                  src={`http://127.0.0.1:8000/${order.book.image}`}
                   alt={order.book.name}
                   width={80}
                   height={120}
@@ -117,12 +135,18 @@ export default function OrdersPage() {
               </div>
 
               <div className="mt-4">
+              <p className="text-sm text-gray-500">
+                  <span className="font-semibold">📅 Дата заказа:</span> {order.order_date}
+                </p>
                 <p className="text-sm text-gray-500">
                   <span className="font-semibold">📅 Дата выдачи:</span> {order.checkout_date}
                 </p>
                 <p className="text-sm text-gray-500">
-                  <span className="font-semibold">⏳ Дата возврата:</span> {order.due_date}
-                </p>
+                <span className="font-semibold">
+                  {order.return_date ? "📅 Дата возврата:" : "⏳ Дата к которой книга должна быть возвращена:"}
+                </span>{" "}
+                {order.return_date ? order.return_date : order.due_date}
+              </p>
                 <label className="text-sm font-semibold block mt-2">✅ Статус:</label>
                 <select
                   value={order.status}

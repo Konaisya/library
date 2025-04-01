@@ -6,10 +6,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
+interface Author {
+    id: number;
+    name: string;
+}
+
+interface Genre {
+    id: number;
+    name: string;
+}
+
+interface Publisher {
+    id: number;
+    name: string;
+}
+
+interface Book {
+    id: number;
+    name: string;
+    authors: Author[];
+    genres: Genre[];
+    publisher: Publisher;
+    year: number;
+    count: number;
+}
 
 export default function BooksPage() {
-    const [books, setBooks] = useState<any[]>([]);
-    const [selectedBook, setSelectedBook] = useState<any | null>(null);
+    const isAdmin = useAdminCheck();
+    const [books, setBooks] = useState<Book[]>([]);
+    const [selectedBook, setSelectedBook] = useState<Book | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
 
     useEffect(() => {
@@ -17,9 +43,15 @@ export default function BooksPage() {
     }, []);
 
     const fetchBooks = async () => {
-        const { data } = await axios.get("http://127.0.0.1:8000/api/books/");
-        setBooks(data);
+        try {
+            const { data } = await axios.get<Book[]>("http://127.0.0.1:8000/api/books/");
+            setBooks(data);
+        } catch (err) {
+            toast("Ошибка", { description: "Не удалось загрузить книги" });
+            console.log("Ошибка загрузки книг:", err);
+        }
     };
+
     const handleDelete = async () => {
         if (!selectedBook) return;
         try {
@@ -28,10 +60,14 @@ export default function BooksPage() {
             setBooks(prev => prev.filter(b => b.id !== selectedBook.id));
             setDialogOpen(false);
             setSelectedBook(null);
-        } catch (error) {
+        } catch (err) {
+            console.log("Ошибка удаления книги:", err);
             toast("Ошибка", { description: "Не удалось удалить книгу" });
         }
     };
+
+    if (isAdmin === null) return <p className="text-center text-lg font-semibold mt-10">Проверка прав доступа...</p>;
+
     return (
         <div className="p-8 space-y-6 max-w-4xl mx-auto">
             <h1 className="text-3xl font-bold">Список книг</h1>
@@ -39,8 +75,8 @@ export default function BooksPage() {
                 <Card key={book.id} className="p-4 space-y-2 relative">
                     <CardContent className="space-y-1">
                         <h2 className="text-xl font-semibold">{book.name}</h2>
-                        <p><b>Авторы:</b> {book.authors.map((a: any) => a.name).join(', ')}</p>
-                        <p><b>Жанры:</b> {book.genres.map((g: any) => g.name).join(', ')}</p>
+                        <p><b>Авторы:</b> {book.authors.map(a => a.name).join(", ")}</p>
+                        <p><b>Жанры:</b> {book.genres.map(g => g.name).join(", ")}</p>
                         <p><b>Издатель:</b> {book.publisher.name}</p>
                         <p><b>Год:</b> {book.year}</p>
                         <p><b>Количество:</b> {book.count}</p>
