@@ -58,8 +58,33 @@ class BookService:
     def update_book(self, id: int, data: UpdateBook):
         entity = data.model_dump()
         entity['id'] = id
+
+        ids_author = entity.pop('ids_author')
+        ids_genre = entity.pop('ids_genre')
+
         entity = {k: v for k, v in entity.items() if v is not None}
         upd_book = self.book_repository.update(entity)
+        if not upd_book:
+            return Status.FAILED.value
+        
+        if ids_author is not None:
+            self.book_author_assoc_repository.session.query(AuthorBook).filter_by(id_book=id).delete()
+            for author_id in ids_author:
+                assoc_data = {
+                    'id_book': id,
+                    'id_author': author_id
+                }
+                self.book_author_assoc_repository.add(assoc_data)
+
+        if ids_genre is not None:
+            self.book_genre_assoc_repository.session.query(GenreBook).filter_by(id_book=id).delete()
+            for genre_id in ids_genre:
+                assoc_data = {
+                    'id_book': id,
+                    'id_genre': genre_id
+                }
+                self.book_genre_assoc_repository.add(assoc_data)
+
         return upd_book
     
     def delete_book(self, id: int):
