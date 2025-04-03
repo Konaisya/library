@@ -38,7 +38,7 @@ export default function EditAuthor() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Функция для загрузки данных автора
+
   const fetchAuthor = async () => {
     try {
       const response = await axios.get<Author>(`${API_URL}authors/${id}`);
@@ -75,7 +75,7 @@ export default function EditAuthor() {
       });
       setSuccess(true);
       toast("Данные автора успешно обновлены");
-      fetchAuthor(); // Автообновление данных после редактирования
+      fetchAuthor(); 
     } catch (error) {
       toast("Ошибка", { description: "Не удалось обновить данные автора" });
       console.error("Ошибка обновления автора:", error);
@@ -84,11 +84,9 @@ export default function EditAuthor() {
     }
   };
 
-  // Обновление изображения
   const handleImageUpload = async () => {
     if (!imageFile || !id) return;
 
-    // Проверка типа файла (разрешены только изображения)
     if (!imageFile.type.startsWith("image/")) {
       toast("Ошибка", { description: "Можно загружать только изображения!" });
       return;
@@ -104,7 +102,6 @@ export default function EditAuthor() {
       setSuccess(true);
       toast("Изображение обновлено");
 
-      // Обновляем данные автора, чтобы изображение сразу отобразилось
       fetchAuthor();
     } catch (error) {
       console.error("Ошибка загрузки изображения:", error);
