@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { toast } from "sonner";
 type Publisher = {
   id: number;
   name: string;
@@ -46,7 +47,7 @@ export default function PublisherPage() {
           setLoading(false);
         });
     }
-  }, [id]);
+  }, [id, success]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -59,6 +60,7 @@ export default function PublisherPage() {
         headers: { "Content-Type": "application/json" },
       });
       setSuccess(true);
+      toast("Данные издателя успешно обновлены");
     } catch (error) {
       console.error("Ошибка обновления данных издателя:", error);
     }
@@ -66,17 +68,24 @@ export default function PublisherPage() {
 
   const handleImageUpload = async () => {
     if (!imageFile || !id) return;
-
+  
+    if (!imageFile.type.startsWith("image/")) {
+      toast("Ошибка", { description: "Можно загружать только изображения." });
+      return;
+    }
+  
     const formData = new FormData();
     formData.append("image", imageFile);
-
+  
     try {
       await axios.patch(`${API_URL}publishers/${id}/image`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setSuccess(true);
+  
+      setSuccess((prev) => !prev); 
+      toast("Изображение успешно обновлено");
     } catch (error) {
-      console.error("Ошибка загрузки изображения:", error);
+      toast("Ошибка", { description: "Не удалось обновить изображение" });
     }
   };
 
@@ -107,9 +116,10 @@ export default function PublisherPage() {
           <Image
             src={`${BASE_URL}${publisher.image}`}
             alt={publisher.name}
-            width={200}
-            height={200}
-            className="w-48 h-48 mx-auto rounded-lg object-cover mb-4"
+            width={600}
+            height={300}
+            objectFit="cover"
+            className="w-300 h-88 mx-auto rounded-lg object-cover mb-4"
           />
         )}
         <h1 className="text-3xl font-bold text-gray-800">{publisher.name}</h1>

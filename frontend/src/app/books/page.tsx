@@ -169,9 +169,9 @@ export default function BooksPage() {
               <Image
                 src={`${BASE_URL}${book.image}`}
                 alt={book.name}
-                width={400}
-                height={400}
-                className="object-cover rounded-md mb-4 mx-auto"
+                width={200}
+                height={100}
+                className="object-cover rounded-md mb-4 mx-auto w-80 h-100"
               />
               <h2 className={`text-xl font-semibold text-center ${book.quantity === 0 ? 'text-gray-500' : 'text-gray-800'}`}>
                 {book.name}
