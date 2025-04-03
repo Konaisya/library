@@ -7,11 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from 'framer-motion';
 import Link from "next/link";
 import Image from "next/image";
-import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 
@@ -52,7 +47,7 @@ export default function BooksPage() {
 
     const fetchBooks = async () => {
         setLoading(true);
-        const { data } = await axios.get<Book[]>("http://127.0.0.1:8000/api/books/");
+        const { data } = await axios.get<Book[]>("http://127.0.0.1:8000/api/books/ ");
         setBooks(data);
         setLoading(false);
     };
@@ -79,8 +74,6 @@ export default function BooksPage() {
                     whileHover={{ scale: 1.05 }}
                     className="shadow-lg rounded-lg"
                 >
-                    <HoverCard>
-                        <HoverCardTrigger>
                             <Card className="p-4 space-y-2">
                                 <CardContent className="space-y-1">
                                     <h2 className="text-xl font-semibold">{book.name}</h2>
@@ -94,12 +87,6 @@ export default function BooksPage() {
                                     </Link>
                                 </CardContent>
                             </Card>
-                        </HoverCardTrigger>
-                        <HoverCardContent>
-                            <p>Редактировать можно только: </p>
-                            <span><b>Название</b>, <b>Авторов</b>, <b>Жанры</b>, <b>Издательство</b>, <b>Год</b>, <b>Количество</b></span>
-                        </HoverCardContent>
-                    </HoverCard>
                 </motion.div>
             ))}
         </div>

@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { toast } from "sonner";
+
 type Author = {
   name: string;
   image: string | null;
@@ -31,18 +33,26 @@ export default function EditAuthor() {
     death_date: null,
     bio: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Функция для загрузки данных автора
+  const fetchAuthor = async () => {
+    try {
+      const response = await axios.get<Author>(`${API_URL}authors/${id}`);
+      setAuthor(response.data);
+      setFormData(response.data);
+    } catch (error) {
+      console.error("Ошибка загрузки автора:", error);
+      toast("Ошибка", { description: "Не удалось загрузить данные автора" });
+    }
+  };
+
   useEffect(() => {
     if (id) {
-      axios.get<Author>(`${API_URL}authors/${id}`)
-        .then((response) => {
-          setAuthor(response.data);
-          setFormData(response.data);
-        })
-        .catch((error) => console.error("Ошибка загрузки автора:", error));
+      fetchAuthor();
     }
   }, [id]);
 
@@ -60,39 +70,50 @@ export default function EditAuthor() {
     setSuccess(false);
 
     try {
-      await axios.put(`${API_URL}authors/${id}/`, formData, {
+      await axios.put(`${API_URL}authors/${id}`, formData, {
         headers: { "Content-Type": "application/json" },
       });
       setSuccess(true);
+      toast("Данные автора успешно обновлены");
+      fetchAuthor(); // Автообновление данных после редактирования
     } catch (error) {
+      toast("Ошибка", { description: "Не удалось обновить данные автора" });
       console.error("Ошибка обновления автора:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Обновление изображения
   const handleImageUpload = async () => {
     if (!imageFile || !id) return;
+
+    // Проверка типа файла (разрешены только изображения)
+    if (!imageFile.type.startsWith("image/")) {
+      toast("Ошибка", { description: "Можно загружать только изображения!" });
+      return;
+    }
 
     const formData = new FormData();
     formData.append("image", imageFile);
 
     try {
-      await axios.patch(`${API_URL}authors/${id}/image`, 
-        formData, {
+      await axios.patch(`${API_URL}authors/${id}/image`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setSuccess(true);
+      toast("Изображение обновлено");
+
+      // Обновляем данные автора, чтобы изображение сразу отобразилось
+      fetchAuthor();
     } catch (error) {
       console.error("Ошибка загрузки изображения:", error);
+      toast("Ошибка", { description: "Не удалось загрузить изображение" });
     }
   };
 
   if (isAdmin === null) return <p className="text-center text-lg font-semibold mt-10">Проверка прав доступа...</p>;
-
-  if (!author) {
-    return <p className="text-center mt-10">Загрузка...</p>;
-  }
+  if (!author) return <p className="text-center mt-10">Загрузка...</p>;
 
   return (
     <motion.div
@@ -141,7 +162,11 @@ export default function EditAuthor() {
 
       <div>
         <Label>Изменить изображение</Label>
-        <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+        />
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button onClick={handleImageUpload} className="w-full mt-2" disabled={!imageFile}>
             Загрузить новое изображение

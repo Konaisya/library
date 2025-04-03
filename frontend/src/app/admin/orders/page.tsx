@@ -42,6 +42,11 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const isAdmin = useAdminCheck();
+  const formatDate = (date: string | null) => {
+    if (!date) return "Не указано";
+    const parsedDate = new Date(date);
+    return isNaN(parsedDate.getTime()) ? "Некорректная дата" : parsedDate.toLocaleDateString(); 
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -136,16 +141,16 @@ export default function OrdersPage() {
 
               <div className="mt-4">
               <p className="text-sm text-gray-500">
-                  <span className="font-semibold">📅 Дата заказа:</span> {order.order_date}
+                  <span className="font-semibold">📅 Дата заказа:</span> {formatDate(order.order_date)}
                 </p>
                 <p className="text-sm text-gray-500">
-                  <span className="font-semibold">📅 Дата выдачи:</span> {order.checkout_date}
+                  <span className="font-semibold">📅 Дата выдачи:</span> {formatDate(order.checkout_date)}
                 </p>
                 <p className="text-sm text-gray-500">
                 <span className="font-semibold">
-                  {order.return_date ? "📅 Дата возврата:" : "⏳ Дата к которой книга должна быть возвращена:"}
+                  {formatDate(order.return_date) ? "📅 Дата возврата:" : "⏳ Дата к которой книга должна быть возвращена:"}
                 </span>{" "}
-                {order.return_date ? order.return_date : order.due_date}
+                {formatDate(order.return_date) ? formatDate(order.return_date) : formatDate(order.due_date)}
               </p>
                 <label className="text-sm font-semibold block mt-2">✅ Статус:</label>
                 <select

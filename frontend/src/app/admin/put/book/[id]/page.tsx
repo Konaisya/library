@@ -70,7 +70,7 @@ export default function EditBookPage() {
     const fetchBook = async (id: string) => {
         setLoading(true);  
         try {
-            const { data } = await axios.get(`http://127.0.0.1:8000/api/books/${id}/`);
+            const { data } = await axios.get(`http://127.0.0.1:8000/api/books/${id}`);
             setForm(data);
         } catch (error) {
             toast("Ошибка", { description: "Не удалось загрузить книгу" });
@@ -101,7 +101,11 @@ export default function EditBookPage() {
 
     const handleSubmit = async () => {
         try {
-            const payload = { ...form, year: Number(form.year), count: Number(form.count) };
+            const { image, ...payload } = form; 
+    
+            payload.year = Number(payload.year);
+            payload.count = Number(payload.count);
+    
             await axios.put(`http://127.0.0.1:8000/api/books/${id}`, payload);
             toast("Книга успешно обновлена");
         } catch (error) {
