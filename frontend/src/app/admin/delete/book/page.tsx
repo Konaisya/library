@@ -58,15 +58,20 @@ export default function BooksPage() {
         try {
             await axios.delete(`http://127.0.0.1:8000/api/books/${selectedBook.id}/`);
             toast.success("Книга удалена");
-            setBooks(prev => prev.filter(b => b.id !== selectedBook.id));
+            setBooks((prev) => prev.filter((b) => b.id !== selectedBook.id));
             setDialogOpen(false);
             setSelectedBook(null);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.log("Ошибка удаления книги:", err);
-            if (err.response && err.response.status === 400) {
-                toast.error("Ошибка", { description: "Невозможно удалить книгу, так как она уже заказана" });
+            
+            if (axios.isAxiosError(err) && err.response) {
+                if (err.response.status === 400) {
+                    toast.error("Ошибка", { description: "Невозможно удалить книгу, так как она уже заказана" });
+                } else {
+                    toast.error("Ошибка", { description: "Не удалось удалить книгу" });
+                }
             } else {
-                toast.error("Ошибка", { description: "Не удалось удалить книгу" });
+                toast.error("Ошибка", { description: "Произошла неизвестная ошибка" });
             }
         }
     };

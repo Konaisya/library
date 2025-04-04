@@ -106,7 +106,7 @@ export default function EditBookPage() {
 
     const handleSubmit = async () => {
         try {
-            const { image, ...payload } = form;
+            const { ...payload } = form;
     
             payload.year = Number(payload.year);
             payload.count = Number(payload.count);
@@ -157,14 +157,14 @@ export default function EditBookPage() {
         }
     };
 
-    const handleCheckboxChange = (type: "ids_author" | "ids_genre", id: number) => {
-        setForm((prev) => {
-            const selected = prev[type].includes(id)
-                ? prev[type].filter((item) => item !== id)
-                : [...prev[type], id];
-            return { ...prev, [type]: selected };
-        });
-    };
+    // const handleCheckboxChange = (type: "ids_author" | "ids_genre", id: number) => {
+    //     setForm((prev) => {
+    //         const selected = prev[type].includes(id)
+    //             ? prev[type].filter((item) => item !== id)
+    //             : [...prev[type], id];
+    //         return { ...prev, [type]: selected };
+    //     });
+    // };
 
     if (loading) {
         return (

@@ -85,6 +85,7 @@ export default function PublisherPage() {
       setSuccess((prev) => !prev); 
       toast("Изображение успешно обновлено");
     } catch (error) {
+      console.log("Ошибка загрузки изображения:", error);
       toast("Ошибка", { description: "Не удалось обновить изображение" });
     }
   };

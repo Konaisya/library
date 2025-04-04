@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { usePathname } from "next/navigation";
 import { API_URL, BASE_URL } from "@/links/APIURL";
@@ -18,6 +18,17 @@ type Author = {
   birth_date: string;
   death_date: string | null;
   bio: string;
+};
+
+const fetchAuthor = async (id: string, setAuthor: (author: Author) => void, setFormData: (data: Author) => void) => {
+  try {
+    const response = await axios.get<Author>(`${API_URL}authors/${id}`);
+    setAuthor(response.data);
+    setFormData(response.data);
+  } catch (error) {
+    console.error("Ошибка загрузки автора:", error);
+    toast("Ошибка", { description: "Не удалось загрузить данные автора" });
+  }
 };
 
 export default function EditAuthor() {
@@ -38,23 +49,15 @@ export default function EditAuthor() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [success, setSuccess] = useState(false);
 
-
-  const fetchAuthor = async () => {
-    try {
-      const response = await axios.get<Author>(`${API_URL}authors/${id}`);
-      setAuthor(response.data);
-      setFormData(response.data);
-    } catch (error) {
-      console.error("Ошибка загрузки автора:", error);
-      toast("Ошибка", { description: "Не удалось загрузить данные автора" });
-    }
-  };
-
-  useEffect(() => {
+  const fetchAuthorCallback = useCallback(() => {
     if (id) {
-      fetchAuthor();
+      fetchAuthor(id, setAuthor, setFormData);
     }
   }, [id]);
+
+  useEffect(() => {
+    fetchAuthorCallback();
+  }, [fetchAuthorCallback]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -75,7 +78,7 @@ export default function EditAuthor() {
       });
       setSuccess(true);
       toast("Данные автора успешно обновлены");
-      fetchAuthor(); 
+      fetchAuthorCallback();
     } catch (error) {
       toast("Ошибка", { description: "Не удалось обновить данные автора" });
       console.error("Ошибка обновления автора:", error);
@@ -102,7 +105,7 @@ export default function EditAuthor() {
       setSuccess(true);
       toast("Изображение обновлено");
 
-      fetchAuthor();
+      fetchAuthorCallback();
     } catch (error) {
       console.error("Ошибка загрузки изображения:", error);
       toast("Ошибка", { description: "Не удалось загрузить изображение" });
