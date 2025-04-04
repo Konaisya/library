@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+
 interface Author {
     id: number;
     name: string;
@@ -47,7 +48,7 @@ export default function BooksPage() {
             const { data } = await axios.get<Book[]>("http://127.0.0.1:8000/api/books/");
             setBooks(data);
         } catch (err) {
-            toast("Ошибка", { description: "Не удалось загрузить книги" });
+            toast.error("Ошибка", { description: "Не удалось загрузить книги" });
             console.log("Ошибка загрузки книг:", err);
         }
     };
@@ -56,13 +57,22 @@ export default function BooksPage() {
         if (!selectedBook) return;
         try {
             await axios.delete(`http://127.0.0.1:8000/api/books/${selectedBook.id}/`);
-            toast("Книга удалена");
-            setBooks(prev => prev.filter(b => b.id !== selectedBook.id));
+            toast.success("Книга удалена");
+            setBooks((prev) => prev.filter((b) => b.id !== selectedBook.id));
             setDialogOpen(false);
             setSelectedBook(null);
-        } catch (err) {
+        } catch (err: unknown) {
             console.log("Ошибка удаления книги:", err);
-            toast("Ошибка", { description: "Не удалось удалить книгу" });
+            
+            if (axios.isAxiosError(err) && err.response) {
+                if (err.response.status === 400) {
+                    toast.error("Ошибка", { description: "Невозможно удалить книгу, так как она уже заказана" });
+                } else {
+                    toast.error("Ошибка", { description: "Не удалось удалить книгу" });
+                }
+            } else {
+                toast.error("Ошибка", { description: "Произошла неизвестная ошибка" });
+            }
         }
     };
 
