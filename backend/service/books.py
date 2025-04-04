@@ -1,6 +1,7 @@
 from utils.abstract_repository import IREpository
 from models.books import *
 from models.authors import *
+from models.orders import Order
 from dependencies import BookRepository
 from schemas.books import CreateBook, UpdateBook, CreateGenre, UpdateGenre
 from utils.enums import Status
