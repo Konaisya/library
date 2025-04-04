@@ -4,6 +4,7 @@ from schemas.books import *
 from schemas.authors import Author
 from utils.enums import Status
 from utils.image import save_image
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter()
 
@@ -88,7 +89,18 @@ async def delete_book(id: int, book_service: BookService = Depends(get_book_serv
     book = book_service.get_one_book_filter_by(id=id)
     if book is None:
         raise HTTPException(status_code=404, detail={'status': Status.NOT_FOUND.value})
-    book_delete = book_service.delete_book(id=id)
+    try:
+        book_service.delete_book(id=id)
+        return {'status': Status.SUCCESS.value, 'message': f'Book with id {id} deleted successfully'}
+    except IntegrityError as e:
+        # Обработка ошибки внешнего ключа
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'status': Status.FAILED.value,
+                'message': f'Cannot delete book with id {id} because it is referenced in other records (e.g., orders).'
+            }
+        )
 
 @router.patch('/{id}/image', status_code=200)
 async def update_book_image(id: int, image: UploadFile = File(...),
