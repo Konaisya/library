@@ -4,6 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface User {
   id: number;
@@ -37,46 +47,86 @@ export default function UserProfile() {
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const router = useRouter();
+
   const formatDate = (date: string | null) => {
     if (!date) return "Не указано";
     const parsedDate = new Date(date);
-    return isNaN(parsedDate.getTime()) ? "Некорректная дата" : parsedDate.toLocaleDateString(); 
+    return isNaN(parsedDate.getTime()) ? "Некорректная дата" : parsedDate.toLocaleDateString();
+  };
+
+  const handleOpenDialog = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setOpenDialog(true);
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!selectedOrderId) return;
+    const token = localStorage.getItem("authToken");
+
+    try {
+      await axios.put(
+        `http://127.0.0.1:8000/api/orders/${selectedOrderId}`,
+        { status: "CANCELLED" },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === selectedOrderId ? { ...order, status: "CANCELLED" } : order
+        )
+      );
+
+      toast.success("Заказ отменен");
+    } catch (error) {
+      toast.error("Ошибка при отмене заказа");
+      console.error("Ошибка отмены заказа:", error);
+    } finally {
+      setOpenDialog(false);
+      setSelectedOrderId(null);
+    }
   };
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    axios.get("http://127.0.0.1:8000/api/users/me", {
-      headers: { Authorization: `Bearer ${token}` },
-      withCredentials: true,
-    })
-      .then(response => {
+    axios
+      .get("http://127.0.0.1:8000/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      })
+      .then((response) => {
         setUser(response.data);
       })
-      .catch(error => {
-        console.log("Ошибка загрузки пользователя:", error);
+      .catch((error) => {
+        console.error("Ошибка загрузки пользователя:", error);
         router.push("/");
       });
   }, [router]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    axios.get(`http://127.0.0.1:8000/api/orders/`, {
-      headers: { Authorization: `Bearer ${token}` },
-      withCredentials: true,
-    })
-      .then(response => {
+    axios
+      .get(`http://127.0.0.1:8000/api/orders/`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      })
+      .then((response) => {
         setOrders(response.data);
         setLoading(false);
       })
-      .catch(error => {
-        console.log("Ошибка загрузки заказов:", error);
+      .catch((error) => {
+        console.error("Ошибка загрузки заказов:", error);
         setLoading(false);
       });
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken"); 
+    localStorage.removeItem("authToken");
     router.push("/auth/signIn");
   };
 
@@ -123,29 +173,71 @@ export default function UserProfile() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
             {orders.map((order) => {
               const status = statusOptions.find((option) => option.value === order.status);
+              const isCancellable = !["CANCELLED", "RETURNED", "LOST", "CHECKED_OUT"].includes(order.status);
+
               return (
                 <motion.div
                   key={order.id}
-                  className={`p-6 text-white rounded-lg shadow-md cursor-pointer ${status?.color} transition-bg`}
+                  className={`relative p-6 text-white rounded-lg shadow-md cursor-pointer ${status?.color} transition-bg`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <h3 className="text-lg font-semibold"><strong>Название книги:</strong> {order.book.name}</h3>
+                  {isCancellable && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenDialog(order.id);
+                      }}
+                      className="absolute bottom-4 right-4 w-10 h-10 flex items-center justify-center backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-full shadow-md transition"
+
+
+                      title="Отменить заказ"
+                    >
+                      <X className="w-5 h-5 stroke-red-500" />
+                    </button>
+                  )}
+                  <h3 className="text-lg font-semibold">
+                    <strong>Название книги:</strong> {order.book.name}
+                  </h3>
                   <p className="text-sm">{status?.label}</p>
                   <p className="text-sm text-gray-200">Дата заказа: {formatDate(order.order_date)}</p>
-                  <p className="text-sm text-gray-200">Дата выдачи книни: {formatDate(order.checkout_date)}</p>
-                  <p className="text-sm text-gray-200">Дата к которой нужно вернуть книгу: {formatDate(order.due_date)}</p>
-                  <p className="text-sm text-gray-200">Дата возврата книги: {formatDate(order.return_date)}</p>
-
+                  <p className="text-sm text-gray-200">
+                    Дата выдачи книги: {formatDate(order.checkout_date)}
+                  </p>
+                  <p className="text-sm text-gray-200">
+                    Вернуть до: {formatDate(order.due_date)}
+                  </p>
+                  <p className="text-sm text-gray-200">
+                    Дата возврата: {formatDate(order.return_date)}
+                  </p>
                 </motion.div>
               );
             })}
           </div>
         )}
       </div>
+
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Вы уверены, что хотите отменить заказ?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-500 mb-4">
+            Это действие отменит заказ. Его нельзя будет восстановить.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+              Отмена
+            </Button>
+            <Button variant="destructive" onClick={confirmCancelOrder}>
+              Подтвердить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

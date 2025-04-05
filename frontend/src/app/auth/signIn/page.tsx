@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import axios from "axios";
 import Link from "next/link";
-
+import { toast } from "sonner";
 export default function SignIn() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -59,10 +59,11 @@ export default function SignIn() {
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        console.error("Ошибка входа:", err.response?.data || err.message);
+        toast.error("Ошибка", { description: "Неверный логин или пароль" });
+        console.log("Ошибка входа:", err.response?.data || err.message);
         setError(err.response?.data?.detail || "Ошибка входа.");
       } else {
-        console.error("Неизвестная ошибка входа:", err);
+        console.log("Неизвестная ошибка входа:", err);
         setError("Произошла неизвестная ошибка.");
       }
     }

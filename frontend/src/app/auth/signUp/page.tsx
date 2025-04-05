@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-
+import { toast } from "sonner";
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -12,6 +12,17 @@ export default function SignUpPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const calculatePasswordStrength = (password: string) => {
+    let score = 0;
+    if (password.length >= 6) score += 1;
+    if (password.length >= 10) score += 1;
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/\d/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+    return score;
+  };
+  const strength = calculatePasswordStrength(formData.password);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,12 +35,16 @@ export default function SignUpPage() {
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/auth/signup", formData);
+
       console.log("Регистрация успешна!", response.data);
+      toast.success("Регистрация успешна! Пожалуйста, войдите в систему.");
       setFormData({ name: "", email: "", password: "" });
     } catch (err) {
-      console.error("Ошибка при регистрации:", err);
+      console.log("Ошибка при регистрации:", err);
+      toast.error("Ошибка", { description: "Произошла ошибка при регистрации" });
       setError("Ошибка регистрации. Попробуйте снова.");
     }
+
      finally {
       setLoading(false);
     }
@@ -93,6 +108,31 @@ export default function SignUpPage() {
               required
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
             />
+
+
+            <div className="mt-2">
+            <div className="w-full h-2 bg-gray-200 rounded">
+              <div
+                className={`h-2 rounded transition-all duration-300 ${
+                  strength <= 1
+                    ? "bg-red-500"
+                    : strength === 2
+                    ? "bg-yellow-400"
+                    : "bg-green-500"
+                }`}
+                style={{ width: `${(strength / 4) * 100}%` }}
+              />
+            </div>
+            <p className="text-sm mt-1 text-gray-600">
+              {formData.password.length === 0
+                ? ""
+                : strength <= 1
+                ? "Слабый пароль"
+                : strength === 2
+                ? "Средний пароль"
+                : "Надёжный пароль"}
+            </p>
+            </div>
           </motion.div>
 
           <motion.button
